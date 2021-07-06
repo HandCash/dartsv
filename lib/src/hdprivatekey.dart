@@ -195,7 +195,7 @@ class HDPrivateKey extends CKDSerializer{
 
         var paddedKey = Uint8List(33);
         paddedKey[0] = 0;
-        final encodedKey = HEX.decode(HEX.encode(encodeBigInt(childKey)).padLeft(66, '0'));
+        final encodedKey = HEX.decode(HEX.encode(encodeBigInt(childKey)).padLeft(64, '0'));
         paddedKey.setRange(1, 33, encodedKey);
 
         var dk = HDPrivateKey._(NetworkType.MAIN, KeyType.PRIVATE);
