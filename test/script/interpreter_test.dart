@@ -85,7 +85,7 @@ void main() {
     group('Interpreter API', () {
         test('should make a new interpreter', () {
             var interp = new Interpreter();
-            expect(interp.stack.length, equals(0));
+            expect(interp.stack!.length, equals(0));
             expect(interp.altStack.length, equals(0));
             expect(interp.pc, equals(0));
             expect(interp.pbegincodehash, equals(0));
@@ -97,12 +97,12 @@ void main() {
 
         test('interpreter can set new values for stacks', () {
             var interp = new Interpreter();
-            interp.stack.push([1, 2, 3]);
-            expect(interp.stack.length, equals(1));
+            interp.stack!.push([1, 2, 3]);
+            expect(interp.stack!.length, equals(1));
             interp.altStack.push([4, 5, 6]);
             expect(interp.altStack.length, equals(1));
             interp.clearStacks();
-            expect(interp.stack.length, equals(0));
+            expect(interp.stack!.length, equals(0));
             expect(interp.altStack.length, equals(0));
         });
     });
@@ -135,7 +135,7 @@ void main() {
         test('should verify these simple transaction', () {
             // first we create a transaction
             var privateKey = new SVPrivateKey.fromWIF('cSBnVM4xvxarwGQuAfQFwqDg9k5tErHUHzgWsEfD4zdwUasvqRVY');
-            var publicKey = privateKey.publicKey;
+            var publicKey = privateKey.publicKey!;
             var fromAddress = publicKey.toAddress(NetworkType.TEST);
             var toAddress = Address('mrU9pEmAx26HcbKVrABvgL7AwA5fjNFoDc');
             var scriptPubkey = P2PKHLockBuilder(fromAddress).getScriptPubkey();
@@ -165,7 +165,7 @@ void main() {
             var flags = ScriptFlags.SCRIPT_VERIFY_P2SH | ScriptFlags.SCRIPT_VERIFY_STRICTENC;
             var interpreter = Interpreter();
 
-            var verified = interpreter.verifyScript(scriptSig, scriptPubkey, tx: tx, nin: inputIndex, flags: flags, satoshis: utxo["satoshis"]);
+            var verified = interpreter.verifyScript(scriptSig, scriptPubkey, tx: tx, nin: inputIndex, flags: flags, satoshis: utxo["satoshis"] as BigInt?);
             expect(interpreter.errstr, equals(""));
             expect(verified, isTrue);
         });
@@ -200,7 +200,7 @@ void main() {
     var evaluateScript = (List<int> arraySig, List<int> arrayPubKey, int op) {
         var flags = ScriptFlags.SCRIPT_VERIFY_P2SH | ScriptFlags.SCRIPT_ENABLE_MAGNETIC_OPCODES | ScriptFlags.SCRIPT_ENABLE_MONOLITH_OPCODES;
         Interpreter interp = Interpreter.fromScript(SVScript().add(arraySig).add(arrayPubKey), flags);
-        interp.script.add(op);
+        interp.script!.add(op);
         interp.evaluate();
         return interp;
     };
@@ -208,7 +208,7 @@ void main() {
     group('#OP_LSHIFT tests from bitcoind', () {
         test('should not shift when no n value', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             var bitPattern = toBitpattern('10011111000100011111010101010101');
             expect(HEX.encode(result), equals(bitPattern));
         });
@@ -216,21 +216,21 @@ void main() {
 
         test('should shift left 1', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x01], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             var bitPattern = toBitpattern('00111110001000111110101010101010');
             expect(HEX.encode(result), equals(bitPattern));
         });
 
         test('should shift left 2', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x02], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             var bitPattern = toBitpattern('01111100010001111101010101010100');
             expect(HEX.encode(result), equals(bitPattern));
         });
 
         test('should shift left 3', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x03], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             var bitPattern = toBitpattern('11111000100011111010101010101000');
             expect(HEX.encode(result), equals(bitPattern));
         });
@@ -238,76 +238,76 @@ void main() {
 
         test('should shift left 4', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x04], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             var bitPattern = toBitpattern('11110001000111110101010101010000');
             expect(HEX.encode(result), equals(bitPattern));
         });
 
         test('should shift left 5', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x05], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('11100010001111101010101010100000')));
         });
 
         test('should shift left 6', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x06], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('11000100011111010101010101000000')));
         });
 
         test('should shift left 7', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x07], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('10001000111110101010101010000000')));
         });
 
         test('should shift left 8', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x08], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00010001111101010101010100000000')));
         });
 
         test('should shift left 9', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x09], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             var bitPattern = toBitpattern('00100011111010101010101000000000');
             expect(HEX.encode(result), equals(bitPattern));
         });
 
         test('should shift left 0A', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x0A], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('01000111110101010101010000000000')));
         });
 
 
         test('should shift left 0B', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x0B], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('10001111101010101010100000000000')));
         });
 
         test('should shift left 0C', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x0C], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00011111010101010101000000000000')));
         });
 
         test('should shift left 0D', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x0D], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00111110101010101010000000000000')));
         });
 
         test('should shift left 0E', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x0E], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('01111101010101010100000000000000')));
         });
 
         test('should shift left 0F', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x0F], OpCodes.OP_LSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('11111010101010101000000000000000')));
         });
     });
@@ -315,104 +315,104 @@ void main() {
     group('#OP_RSHIFT tests from bitcoind', () {
         test('should not shift when no n value', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('10011111000100011111010101010101')));
         });
 
         test('should shift right 1', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x01], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('01001111100010001111101010101010')));
         });
 
         test('should shift right 2', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x02], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00100111110001000111110101010101')));
         });
 
         test('should shift right 3', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x03], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00010011111000100011111010101010')));
         });
 
         test('should shift right 4', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x04], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00001001111100010001111101010101')));
         });
 
 
         test('should shift right 5', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x05], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00000100111110001000111110101010')));
         });
 
 
         test('should shift right 6', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x06], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00000010011111000100011111010101')));
         });
 
         test('should shift right 7', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x07], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00000001001111100010001111101010')));
         });
 
         test('should shift right 08', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x08], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00000000100111110001000111110101')));
         });
 
 
         test('should shift right 9', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x09], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00000000010011111000100011111010')));
         });
 
         test('should shift right 0A', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x0A], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00000000001001111100010001111101')));
         });
 
 
         test('should shift right 0B', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x0B], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00000000000100111110001000111110')));
         });
 
 
         test('should shift right 0C', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x0C], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00000000000010011111000100011111')));
         });
 
 
         test('should shift right 0D', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x0D], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00000000000001001111100010001111')));
         });
 
         test('should shift right 0E', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x0E], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00000000000000100111110001000111')));
         });
 
 
         test('should shift right 0F', () {
             var interp = evaluateScript([0x9F, 0x11, 0xF5, 0x55], [0x0F], OpCodes.OP_RSHIFT);
-            var result = interp.stack.pop();
+            var result = interp.stack!.pop();
             expect(HEX.encode(result), equals(toBitpattern('00000000000000010011111000100011')));
         });
     });
@@ -421,12 +421,12 @@ void main() {
         var scriptSig = SVScript.fromBitcoindString(vector[0]);
         var scriptPubkey = SVScript.fromBitcoindString(vector[1]);
         var flags = getFlags(vector[2]);
-        var inputAmount = 0.0;
+        double? inputAmount = 0.0;
         if (extraData != null) {
             inputAmount = extraData[0] * 1e8;
         }
 
-        var hashbuf = List<int>(32);
+        var hashbuf = List<int>.filled(32, 0, growable: false);
         hashbuf.fillRange(0, hashbuf.length, 0);
         Transaction credtx = new Transaction();
         var coinbaseUnlockBuilder = DefaultUnlockBuilder();
@@ -446,12 +446,12 @@ void main() {
         var txOutLockBuilder = DefaultLockBuilder();
         txOutLockBuilder.fromScript(scriptPubkey);
         var txCredOut = TransactionOutput(scriptBuilder: txOutLockBuilder);
-        txCredOut.satoshis = BigInt.from(inputAmount);
+        txCredOut.satoshis = BigInt.from(inputAmount!);
         txCredOut.script = scriptPubkey;
         credtx.addOutput(txCredOut);
 
         //setup transaction ID of spent Transaction
-        String prevTxId = credtx.id;
+        String? prevTxId = credtx.id;
 
         var defaultUnlockBuilder = DefaultUnlockBuilder();
         defaultUnlockBuilder.fromScript(scriptSig);
@@ -487,12 +487,12 @@ void main() {
                 }
                 var extraData;
                 if (vect[0] is List) {
-                    extraData = (vect as List<dynamic>).removeAt(0);
+                    extraData = (vect).removeAt(0);
                 }
 
                 String fullScriptString = "${vect[0]} ${vect[1]}";
                 bool expected = vect[3] == 'OK';
-                String comment = "";
+                String? comment = "";
                 if (vect.length > 4) {
                     comment = vect[4];
                 }
@@ -541,7 +541,7 @@ void main() {
 //              return;
 //            }
             var scriptSig = txin.script;
-            var txidhex = txin.prevTxnId;
+            var txidhex = txin.prevTxnId!;
             var txoutnum = txin.prevTxnOutputIndex;
             var scriptPubkey = map[txidhex + ':' + txoutnum.toString()];
             expect(scriptPubkey, isNotNull);
@@ -584,7 +584,7 @@ void main() {
 
     CheckBinaryOpMagnetic(List<int> a, List<int> b, int op, List<int> expected) {
         var interp = evaluateScript(a, b, op);
-        var result = interp.stack.pop();
+        var result = interp.stack!.pop();
         expect(result, equals(expected));
     }
 

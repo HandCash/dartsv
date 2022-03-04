@@ -12,7 +12,7 @@ class ScriptChunk {
 
     List<int> _buf;
     int _len;
-    int _opcodenum;
+    int? _opcodenum;
 
     ///Construct a  ScriptChunk
     ///
@@ -26,11 +26,11 @@ class ScriptChunk {
 
     /// Returns this script chunk's numeric opcode
     ///
-    int get opcodenum => _opcodenum;
+    int? get opcodenum => _opcodenum;
 
     /// Sets this script chunk's numeric opcode
     ///
-    set opcodenum(int value) {
+    set opcodenum(int? value) {
         _opcodenum = value;
     }
 
@@ -100,7 +100,7 @@ class SVScript with ScriptBuilder {
     /// ```
     ///
     SVScript.fromHex(String script){
-        _processBuffer(HEX.decode(script));
+        _processBuffer(HEX.decode(script) as Uint8List);
     }
 
 
@@ -142,7 +142,7 @@ class SVScript with ScriptBuilder {
             }
 
             var opstr;
-            int opcodenum;
+            int? opcodenum;
             var tbuf;
             if (token.startsWith('0x')) {
                 var hex = token.substring(2).replaceAll(',', '');
@@ -156,11 +156,11 @@ class SVScript with ScriptBuilder {
             } else if (OpCodes.opcodeMap.containsKey("OP_${token.toUpperCase()}")) {
                 opstr = 'OP_' + token;
                 opcodenum = OpCodes.opcodeMap[opstr];
-                bw.writeUint8(opcodenum);
+                bw.writeUint8(opcodenum!);
             } else if (OpCodes.opcodeMap[token] is num) {
                 opstr = token;
                 opcodenum = OpCodes.opcodeMap[opstr];
-                bw.writeUint8(opcodenum);
+                bw.writeUint8(opcodenum!);
             } else if (BigInt.tryParse(token) != null) {
                 var script = SVScript()
                     ..add(Uint8List.fromList(toScriptNumBuffer(BigInt.parse(token))));
@@ -226,9 +226,9 @@ class SVScript with ScriptBuilder {
         for (var i = 0; i < _chunks.length; i++) {
             var chunk = _chunks[i];
             var opcodenum = chunk.opcodenum;
-            bw.writeUint8(chunk.opcodenum);
+            bw.writeUint8(chunk.opcodenum!);
             if (chunk.buf.isNotEmpty) {
-                if (opcodenum < OpCodes.OP_PUSHDATA1) {
+                if (opcodenum! < OpCodes.OP_PUSHDATA1) {
                     bw.write(chunk.buf);
                 } else if (opcodenum == OpCodes.OP_PUSHDATA1) {
                     bw.writeUint8(chunk.len);
@@ -376,7 +376,7 @@ class SVScript with ScriptBuilder {
     /// Returns *true* if this script only performs PUSHDATA operations
     bool isPushOnly() {
         return _chunks.fold(true, (prev, chunk) {
-            return prev && (chunk.opcodenum <= OpCodes.OP_16 ||
+            return prev && (chunk.opcodenum! <= OpCodes.OP_16 ||
                 chunk.opcodenum == OpCodes.OP_PUSHDATA1 ||
                 chunk.opcodenum == OpCodes.OP_PUSHDATA2 ||
                 chunk.opcodenum == OpCodes.OP_PUSHDATA4);
@@ -441,7 +441,7 @@ class SVScript with ScriptBuilder {
     /// `howMany` - the number of items to be removed.
     ///
     /// `values`  - an optional List of  items to insert; null if no items need insertion
-    List<ScriptChunk> splice(int index, int howMany, {List<ScriptChunk> values}) {
+    List<ScriptChunk> splice(int index, int howMany, {List<ScriptChunk>? values}) {
         List<ScriptChunk> buffer = List.from(_chunks);
 
         List<ScriptChunk> removedItems = buffer.getRange(index, index+howMany).toList();
@@ -459,7 +459,7 @@ class SVScript with ScriptBuilder {
 
     /// Strips all OP_CODESEPARATOR instructions from the script.
     SVScript removeCodeseparators() {
-        var chunks = List<ScriptChunk>();
+        var chunks = <ScriptChunk>[];
         for (var i = 0; i < _chunks.length; i++) {
             if (_chunks[i].opcodenum != OpCodes.OP_CODESEPARATOR) {
                 chunks.add(_chunks[i]);
@@ -533,7 +533,7 @@ class SVScript with ScriptBuilder {
                     str = str + ' ' + OpCodes.fromNum(opcodenum);
                 }
             } else {
-                var numstr = opcodenum.toRadixString(16);
+                var numstr = opcodenum!.toRadixString(16);
                 if (numstr.length % 2 != 0) {
                     numstr = '0' + numstr;
                 }
@@ -609,9 +609,9 @@ class SVScript with ScriptBuilder {
     }
 
     void _addOpcode(opcode, prepend) {
-        int op;
+        int? op;
         if (opcode is num) {
-            op = opcode;
+            op = opcode as int?;
         } else if (opcode is String && OpCodes.opcodeMap.containsKey(opcode)) {
             op = OpCodes.opcodeMap[opcode];
         }

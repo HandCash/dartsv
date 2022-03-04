@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dartsv/dartsv.dart';
 import 'package:test/test.dart';
 import 'dart:io';
@@ -25,17 +27,17 @@ main() {
             'fbbc83ed610e416d94dcee2bb3bc35dfea8060b8052c59eabd7e998e3e978328'
         ];
         var txbuf = vector[0];
-        var scriptbuf = HEX.decode(vector[1]);
-        var subscript = SVScript.fromByteArray(scriptbuf);
+        var scriptbuf = HEX.decode(vector[1] as String);
+        var subscript = SVScript.fromByteArray(scriptbuf as Uint8List);
         var nin = vector[2];
         var nhashtype = vector[3];
-        var tx = Transaction.fromHex(txbuf);
+        var tx = Transaction.fromHex(txbuf as String);
 
         // make sure transacion to/from buffer is isomorphic
         expect(tx.uncheckedSerialize(), equals(txbuf.toString()));
 
         // sighash ought to be correct
-        expect(() => Sighash().hash(tx, nhashtype, nin, subscript, null).toString(), throwsException);
+        expect(() => Sighash().hash(tx, nhashtype as int?, nin as int?, subscript, null).toString(), throwsException);
     });
 
 

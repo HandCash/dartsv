@@ -21,16 +21,16 @@ import 'package:sprintf/sprintf.dart';
 /// in February 2020.
 ///
 class TransactionOutput {
-    BigInt _satoshis = BigInt.zero;
-    String _transactionId;
-    int _outputIndex;
+    BigInt? _satoshis = BigInt.zero;
+    String? _transactionId;
+    int? _outputIndex;
     bool _isChangeOutput = false;
 
-    LockingScriptBuilder _scriptBuilder;
+    LockingScriptBuilder? _scriptBuilder;
 
 
     /// The default constructor. Initializes a "clean slate" output.
-    TransactionOutput({LockingScriptBuilder scriptBuilder = null}){
+    TransactionOutput({LockingScriptBuilder? scriptBuilder = null}){
        _scriptBuilder = scriptBuilder ??= DefaultLockBuilder();
     }
 
@@ -43,7 +43,7 @@ class TransactionOutput {
     /// This method is useful when iteratively reading the transaction
     /// outputs in a raw transaction, which is also how it is currently
     /// being used.
-    TransactionOutput.fromReader(ByteDataReader reader, {LockingScriptBuilder scriptBuilder = null}) {
+    TransactionOutput.fromReader(ByteDataReader reader, {LockingScriptBuilder? scriptBuilder = null}) {
 
         _scriptBuilder = scriptBuilder ??= DefaultLockBuilder();
 
@@ -51,11 +51,11 @@ class TransactionOutput {
         var size = readVarIntNum(reader);
         if (size != 0) {
             var script = SVScript.fromBuffer(reader.read(size, copy: true));
-            _scriptBuilder.fromScript(script);
+            _scriptBuilder!.fromScript(script);
 
         } else {
             var script = SVScript.fromBuffer(Uint8List(0));
-            _scriptBuilder.fromScript(script);
+            _scriptBuilder!.fromScript(script);
         }
     }
 
@@ -64,10 +64,10 @@ class TransactionOutput {
     /// See [Transaction.MAX_MONEY]
     bool invalidSatoshis() {
         //    if (this._satoshis > MAX_SAFE_INTEGER) {
-        if (this._satoshis < BigInt.zero)
+        if (this._satoshis! < BigInt.zero)
             return true;
 
-        if (this._satoshis > Transaction.MAX_MONEY) //yes, there is a finite amount of bitcoin
+        if (this._satoshis! > Transaction.MAX_MONEY) //yes, there is a finite amount of bitcoin
             return true;
 
         return false;
@@ -75,10 +75,10 @@ class TransactionOutput {
 
     /// Returns a byte array containing the raw transaction output
     List<int> serialize() {
-        List<int> buffer = List<int>();
+        List<int> buffer = <int>[];
 
         //add value in satoshis - 8 bytes BigInt
-        var satArr = sprintf("%016s", [this._satoshis.abs().toRadixString(16)]); //lazy way to get to 8 byte padding
+        var satArr = sprintf("%016s", [this._satoshis!.abs().toRadixString(16)]); //lazy way to get to 8 byte padding
         satArr = satArr.replaceAll(" ", "0"); // hack around sprintf not padding zeros
         buffer.addAll(HEX
             .decode(satArr)
@@ -101,46 +101,46 @@ class TransactionOutput {
     /// working with JSON serializers easier.
     Map<String, dynamic> toObject() {
         return {
-            "satoshis": this._satoshis.toInt(),
-            "script": _scriptBuilder.getScriptPubkey().toHex()
+            "satoshis": this._satoshis!.toInt(),
+            "script": _scriptBuilder!.getScriptPubkey().toHex()
         };
     }
 
     /// Returns the output script in it's raw hexadecimal form
     String get scriptHex {
-        return this._scriptBuilder.getScriptPubkey().toHex();
+        return this._scriptBuilder!.getScriptPubkey().toHex();
     }
 
     /// Returns the output script as a [SVScript] instance
-    SVScript get script => _scriptBuilder.getScriptPubkey();
+    SVScript get script => _scriptBuilder!.getScriptPubkey();
 
     /// Sets the output script to the provided value
     set script(SVScript script) {
-        _scriptBuilder.fromScript(script);
+        _scriptBuilder!.fromScript(script);
     }
 
     /// Returns the number of satoshis the output is sending
-    BigInt get satoshis => _satoshis;
+    BigInt? get satoshis => _satoshis;
 
     /// Sets the number of satoshis the output is sending
-    set satoshis(BigInt value) {
+    set satoshis(BigInt? value) {
         _satoshis = value;
     }
 
     /// Returns the transactionId of the transaction this output belongs to
-    String get transactionId => _transactionId;
+    String? get transactionId => _transactionId;
 
 
     /// Sets the transactionId of the transaction this output belongs to
-    set transactionId(String value) {
+    set transactionId(String? value) {
         _transactionId = value;
     }
 
     /// Returns the index of the (UTXO) in the transaction this output belongs to
-    int get outputIndex => _outputIndex;
+    int? get outputIndex => _outputIndex;
 
     /// sets the index of the (UTXO) in the transaction this output belongs to
-    set outputIndex(int value) {
+    set outputIndex(int? value) {
         _outputIndex = value;
     }
 
@@ -150,7 +150,7 @@ class TransactionOutput {
     ///
     ///
     bool get isDataOut {
-        var scriptChunks = scriptBuilder.getScriptPubkey().chunks;
+        var scriptChunks = scriptBuilder!.getScriptPubkey().chunks;
         if (scriptChunks.isNotEmpty && scriptChunks[0].opcodenum == OpCodes.OP_FALSE){
             //safe data out
            return scriptChunks.length >= 2 && scriptChunks[1].opcodenum == OpCodes.OP_RETURN;
@@ -174,7 +174,7 @@ class TransactionOutput {
 
 
     /// Returns the current instance of LockingScriptBuilder in use by this instance
-    LockingScriptBuilder get scriptBuilder => _scriptBuilder;
+    LockingScriptBuilder? get scriptBuilder => _scriptBuilder;
 
 //FIXME: Swing back to this leaner implementation based on ByteDataWriter()
 //    List<int> serialize2(){

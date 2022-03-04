@@ -54,7 +54,7 @@ main() {
         var signatureLength = base64Decode(signature).length;
 
         expect(signatureLength, equals(65));
-        expect(messageSigner.verifyFromPublicKey(privateKey.publicKey, signature), isTrue);
+        expect(messageSigner.verifyFromPublicKey(privateKey.publicKey!, signature), isTrue);
     });
 
     test('Signature with messages that are known to produce bad s-values', (){
@@ -81,7 +81,7 @@ main() {
             var signatureLength = base64Decode(signature).length;
 
             expect(signatureLength, equals(65));
-            expect(messageSigner.verifyFromPublicKey(privateKey.publicKey, signature), isTrue);
+            expect(messageSigner.verifyFromPublicKey(privateKey.publicKey!, signature), isTrue);
         }
 
     });
@@ -101,19 +101,19 @@ main() {
         var message2 = new Message(utf8.encode(text));
         var signature2 = message2.sign(privateKey);
         Message message4 = new Message(utf8.encode(text));
-        expect(message4.verifyFromPublicKey(publicKey, signature2), isTrue);
+        expect(message4.verifyFromPublicKey(publicKey!, signature2), isTrue);
     });
 
 
     test('can verify a message with existing signature', () {
         var message5 = new Message(utf8.encode(text));
-        expect(message5.verifyFromPublicKey(publicKey, signature), isTrue);
+        expect(message5.verifyFromPublicKey(publicKey!, signature), isTrue);
     });
 
 
     test('verify will correctly identify a bad signature', () {
         var message8 = new Message(utf8.encode(text));
-        expect(message8.verifyFromPublicKey(publicKey, badSignature), isFalse);
+        expect(message8.verifyFromPublicKey(publicKey!, badSignature), isFalse);
     });
 
 
@@ -134,7 +134,7 @@ main() {
         var privateKey = SVPrivateKey.fromWIF('5KYZdUEo39z3FPrtuX2QbbwGnNP5zTd7yyr2SC1j299sBCnWjss');
         var message = new Message(utf8.encode('This is an example of a signed message.'));
         var signature = message.sign(privateKey);
-        expect(message.verifyFromPublicKey(privateKey.publicKey, signature), isTrue);
+        expect(message.verifyFromPublicKey(privateKey.publicKey!, signature), isTrue);
     });
 
     test('will verify with an uncompressed pubkey using verifyFromAddress()', () {

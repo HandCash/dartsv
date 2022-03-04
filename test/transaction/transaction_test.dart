@@ -365,19 +365,19 @@ main() {
 
     test('fee per kb can be set up manually', () {
         var  inputs = List<TransactionInput>.generate(10, (input) {
-            BigInt amountToSpend = simpleUtxoWith100000Satoshis['satoshis'];
-            String transactionId = simpleUtxoWith100000Satoshis['txId'];
-            int outputIndex = simpleUtxoWith100000Satoshis['outputIndex'];
-            String scriptPubKey = simpleUtxoWith100000Satoshis['scriptPubKey'];
+            BigInt? amountToSpend = simpleUtxoWith100000Satoshis['satoshis'] as BigInt?;
+            String? transactionId = simpleUtxoWith100000Satoshis['txId'] as String?;
+            int? outputIndex = simpleUtxoWith100000Satoshis['outputIndex'] as int?;
+            String scriptPubKey = simpleUtxoWith100000Satoshis['scriptPubKey'] as String;
             return TransactionInput(transactionId, outputIndex, SVScript.fromString(scriptPubKey), amountToSpend, TransactionInput.UINT_MAX);
         });
 
         var outputs = List<TransactionOutput>.generate(10, (output) {
             var txo = TransactionOutput();
-            txo.transactionId = simpleUtxoWith100000Satoshis['txId'];
-            txo.outputIndex = simpleUtxoWith100000Satoshis['outputIndex'];
-            txo.script = SVScript.fromString(simpleUtxoWith100000Satoshis['scriptPubKey']);
-            txo.satoshis =  simpleUtxoWith100000Satoshis['satoshis'];
+            txo.transactionId = simpleUtxoWith100000Satoshis['txId'] as String?;
+            txo.outputIndex = simpleUtxoWith100000Satoshis['outputIndex'] as int?;
+            txo.script = SVScript.fromString(simpleUtxoWith100000Satoshis['scriptPubKey'] as String);
+            txo.satoshis =  simpleUtxoWith100000Satoshis['satoshis'] as BigInt?;
             return txo;
         });
 
@@ -733,7 +733,7 @@ main() {
 
                     var txOutputs = outputSet.map((output) {
                         var txOut = TransactionOutput();
-                        txOut.script = SVScript.fromByteArray(utf8.encode(output["script"]));
+                        txOut.script = SVScript.fromByteArray(utf8.encode(output["script"]) as Uint8List);
                         txOut.satoshis = BigInt.from(output["value"]);
                         return txOut;
                     }).toList();
@@ -968,10 +968,10 @@ main() {
 
   group('checks on adding inputs', () {
         Transaction transaction = new Transaction();
-        BigInt amountToSpend = simpleUtxoWith100000Satoshis['satoshis'];
-        String transactionId = simpleUtxoWith100000Satoshis['txId'];
-        int outputIndex = simpleUtxoWith100000Satoshis['outputIndex'];
-        String scriptPubKey = simpleUtxoWith100000Satoshis['scriptPubKey'];
+        BigInt? amountToSpend = simpleUtxoWith100000Satoshis['satoshis'] as BigInt?;
+        String? transactionId = simpleUtxoWith100000Satoshis['txId'] as String?;
+        int? outputIndex = simpleUtxoWith100000Satoshis['outputIndex'] as int?;
+        String? scriptPubKey = simpleUtxoWith100000Satoshis['scriptPubKey'] as String?;
 
 //        test('fails if no output script is provided', () {
 //            var txInput = TransactionInput(transactionId, outputIndex, "", amountToSpend, TransactionInput.UINT_MAX);
@@ -1077,9 +1077,9 @@ main() {
       tx.signInput(1, privateKey);
       tx.signInput(2, privateKey);
 
-      expect(tx.inputs[0].script.toHex(), equals('47304402206c7ae0a256e5dc87f8b1d29f44111ba1b3ab4a6ab189912bb5b259a803b90ccc022030295ae8d683c81cea732f222616353f30dc3bbccbf24221a470d0a45abc552700210223078d2942df62c45621d209fab84ea9a7a23346201b7727b9b45a29c4e76f5e'));
-      expect(tx.inputs[1].script.toHex(), equals('483045022100bfc8ed8db89583aad697dc648e8f601bf3ec0a3e94e0bb4407f01d82dad413a302202ca7de4e2b7714287c9c01733009ef08213e822d7bb6bcf253cc44f1324b4d5c00210223078d2942df62c45621d209fab84ea9a7a23346201b7727b9b45a29c4e76f5e'));
-      expect(tx.inputs[2].script.toHex(), equals('473044022066c7337601ec3ef61cddc915c0ca56f543c2d708ca464e00a2b894f82160879f022045151d45f57f9c15bea1dcfe8edb0a0703fcac410c206a59bfb755250828d67300210223078d2942df62c45621d209fab84ea9a7a23346201b7727b9b45a29c4e76f5e'));
+      expect(tx.inputs[0].script!.toHex(), equals('47304402206c7ae0a256e5dc87f8b1d29f44111ba1b3ab4a6ab189912bb5b259a803b90ccc022030295ae8d683c81cea732f222616353f30dc3bbccbf24221a470d0a45abc552700210223078d2942df62c45621d209fab84ea9a7a23346201b7727b9b45a29c4e76f5e'));
+      expect(tx.inputs[1].script!.toHex(), equals('483045022100bfc8ed8db89583aad697dc648e8f601bf3ec0a3e94e0bb4407f01d82dad413a302202ca7de4e2b7714287c9c01733009ef08213e822d7bb6bcf253cc44f1324b4d5c00210223078d2942df62c45621d209fab84ea9a7a23346201b7727b9b45a29c4e76f5e'));
+      expect(tx.inputs[2].script!.toHex(), equals('473044022066c7337601ec3ef61cddc915c0ca56f543c2d708ca464e00a2b894f82160879f022045151d45f57f9c15bea1dcfe8edb0a0703fcac410c206a59bfb755250828d67300210223078d2942df62c45621d209fab84ea9a7a23346201b7727b9b45a29c4e76f5e'));
   });
 
   test('sign rawtransaction', (){

@@ -28,12 +28,12 @@ import 'exceptions.dart';
 /// * last 4 bytes  - a checksum value taken from the first four bytes of sha256(sha256(previous_21_bytes))
 
 class Address {
-  List<NetworkType> _networkTypes;
+  List<NetworkType>? _networkTypes;
 
-  String _publicKeyHash;
-  AddressType _addressType;
-  NetworkType _networkType;
-  int _version;
+  String? _publicKeyHash;
+  AddressType? _addressType;
+  NetworkType? _networkType;
+  late int _version;
 
   /// Constructs a new Address object
   ///
@@ -51,7 +51,7 @@ class Address {
   /// [networkType] is used to distinguish between MAINNET and TESTNET.
   ///
   /// Also see [NetworkType]
-  Address.fromHex(String hexPubKey, NetworkType networkType){
+  Address.fromHex(String hexPubKey, NetworkType? networkType){
       _createFromHex(hexPubKey, networkType);
   }
 
@@ -82,7 +82,7 @@ class Address {
   /// [networkType] is used to distinguish between MAINNET and TESTNET.
   ///
   /// Also see [NetworkType]
-  Address.fromCompressedPubKey(List<int> pubkeyBytes, NetworkType networkType) {
+  Address.fromCompressedPubKey(List<int> pubkeyBytes, NetworkType? networkType) {
       _createFromHex(HEX.encode(pubkeyBytes), networkType);
       _publicKeyHash = HEX.encode(hash160(pubkeyBytes));
   }
@@ -118,7 +118,7 @@ class Address {
   String toBase58() {
       // A stringified buffer is:
       //   1 byte version + data bytes + 4 bytes check code (a truncated hash)
-      var rawHash = Uint8List.fromList(HEX.decode(_publicKeyHash));
+      var rawHash = Uint8List.fromList(HEX.decode(_publicKeyHash!));
 
       return _getEncoded(rawHash);
   }
@@ -131,14 +131,14 @@ class Address {
   }
 
   /// Returns the public key hash `ripemd160(sha256(public_key))` encoded as a  hexadecimal string
-  String toHex(){
+  String? toHex(){
       return _publicKeyHash;
   }
 
 
   String _getEncoded(List<int> hashAddress) {
 
-      var addressBytes = List<int>(1 + hashAddress.length + 4);
+      var addressBytes = List<int>.filled(1 + hashAddress.length + 4, 0, growable: false);
       addressBytes[0] = _version;
 
       //copy all of raw address content, taking care not to
@@ -148,7 +148,7 @@ class Address {
 
       //checksum calculation...
       //doubleSha everything except the last four checksum bytes
-      var doubleShaAddr = sha256Twice(addressBytes.sublist(0, hashAddress.length + 1));
+      var doubleShaAddr = sha256Twice(addressBytes.sublist(0, hashAddress.length + 1) );
       var checksum = doubleShaAddr.sublist(0, 4).map((elem) => elem.toSigned(8)).toList();
 
       addressBytes.setRange(hashAddress.length + 1, addressBytes.length, checksum);
@@ -163,14 +163,14 @@ class Address {
       address = address.trim();
 
       var versionAndDataBytes = bs58check.decodeChecked(address);
-      var versionByte = versionAndDataBytes[0].toUnsigned(8);
+      var versionByte = versionAndDataBytes[0]!.toUnsigned(8);
 
       _version = versionByte & 0xFF;
       _networkTypes = Networks.getNetworkTypes(_version);
       _addressType = Networks.getAddressType(_version);
       _networkType = Networks.getNetworkTypes(_version)[0];
       var stripVersion = versionAndDataBytes.sublist(1, versionAndDataBytes.length);
-      _publicKeyHash = HEX.encode(stripVersion.map((elem) => elem.toUnsigned(8)).toList());
+      _publicKeyHash = HEX.encode(stripVersion.map((elem) => elem!.toUnsigned(8)).toList());
   }
 
   void _createFromScript(SVScript script, NetworkType networkType) {
@@ -191,7 +191,7 @@ class Address {
 
   }
 
-  void _createFromHex(String hexPubKey, NetworkType networkType){
+  void _createFromHex(String hexPubKey, NetworkType? networkType){
 
 
       //make an assumption about PKH vs PSH for naked address generation
@@ -216,10 +216,10 @@ class Address {
   /// computation is then passed to the `ripemd160()` digest function.
   ///
   /// The returned value is HEX-encoded
-  String get address => _publicKeyHash;
+  String? get address => _publicKeyHash;
 
   /// An alias for the [address] property
-  String get pubkeyHash160 => _publicKeyHash;
+  String? get pubkeyHash160 => _publicKeyHash;
 
 
   /// Returns a list of network types supported by this address
@@ -227,11 +227,11 @@ class Address {
   /// This is only really needed because BSV has three different test networks
   /// which technically share the same integer value when encoded, but for
   /// which it is useful to have a type-level distinction during development
-  List<NetworkType> get networkTypes => _networkTypes;
+  List<NetworkType>? get networkTypes => _networkTypes;
 
 
   /// Returns the specific Network Type that this Address is compatible with
-  NetworkType get networkType => _networkType;
+  NetworkType? get networkType => _networkType;
 
   /// Returns the type of "standard transaction" this Address is meant to be used for.
   ///
@@ -245,7 +245,7 @@ class Address {
   /// as "non-standard" transaction types start appearing on the Bitcoin SV blockchain.
   ///
   /// See documentation for [Transaction]
-  AddressType get addressType => _addressType;
+  AddressType? get addressType => _addressType;
 
 
 

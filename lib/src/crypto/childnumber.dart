@@ -57,12 +57,13 @@ class ChildNumber implements Comparable<ChildNumber> {
     }
 
 
-    bool operator ==(otherChild){
+    @override
+  bool operator ==(Object otherChild){
 
-        if (otherChild == null || runtimeType != otherChild.runtimeType)
+        if (runtimeType != otherChild.runtimeType)
             return false;
 
-        return this._i == otherChild.i;
+        return this._i == (otherChild as ChildNumber).i;
     }
 
     get hashCode {

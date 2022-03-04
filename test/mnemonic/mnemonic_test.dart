@@ -1,10 +1,11 @@
 
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:dartsv/src/bip39/bip39.dart';
-import 'package:resource/resource.dart';
+import 'package:resource_portable/resource.dart';
 import 'package:test/test.dart';
 
 main(){
@@ -67,8 +68,8 @@ main(){
             return result;
     }
 
-    List<String> ENGLISH_WORDS;
-    List<String> SPANISH_WORDS;
+    late List<String> ENGLISH_WORDS;
+    late List<String> SPANISH_WORDS;
 
     setUp(() async {
 
@@ -95,51 +96,51 @@ main(){
     });
 
     test('english wordlist is complete', () async {
-        var wordList = await new Mnemonic().getWordList(Wordlist.ENGLISH);
+        List<String> wordList = await (new Mnemonic().getWordList(Wordlist.ENGLISH));
 
         expect(wordList.length, equals(2048));
     });
 
     test('spanish wordlist is complete', () async {
-        var wordList = await new Mnemonic().getWordList(Wordlist.SPANISH);
+        List<String> wordList = await (new Mnemonic().getWordList(Wordlist.SPANISH));
 
         expect(wordList.length, equals(2048));
     });
 
     test('japanese wordlist is complete', () async {
-        var wordList = await new Mnemonic().getWordList(Wordlist.JAPANESE);
+        List<String> wordList = await (new Mnemonic().getWordList(Wordlist.JAPANESE));
 
         expect(wordList.length, equals(2048));
     });
 
 
     test('simplified chinese wordlist is complete', () async {
-        var wordList = await new Mnemonic().getWordList(Wordlist.CHINESE_SIMPLIFIED);
+        var wordList = await (new Mnemonic().getWordList(Wordlist.CHINESE_SIMPLIFIED));
 
         expect(wordList.length, equals(2048));
     });
 
     test('traditional chinese wordlist is complete', () async {
-        var wordList = await new Mnemonic().getWordList(Wordlist.CHINESE_TRADITIONAL);
+        var wordList = await (new Mnemonic().getWordList(Wordlist.CHINESE_TRADITIONAL));
 
         expect(wordList.length, equals(2048));
     });
 
     test('french wordlist is complete', () async {
-        var wordList = await new Mnemonic().getWordList(Wordlist.FRENCH);
+        var wordList = await (new Mnemonic().getWordList(Wordlist.FRENCH));
 
         expect(wordList.length, equals(2048));
     });
 
 
     test('italian wordlist is complete', () async {
-        var wordList = await new Mnemonic().getWordList(Wordlist.ITALIAN);
+        var wordList = await (new Mnemonic().getWordList(Wordlist.ITALIAN));
 
         expect(wordList.length, equals(2048));
     });
 
     test('korean wordlist is complete', () async {
-        var wordList = await new Mnemonic().getWordList(Wordlist.KOREAN);
+        var wordList = await (new Mnemonic().getWordList(Wordlist.KOREAN));
 
         expect(wordList.length, equals(2048));
     });
@@ -212,7 +213,7 @@ main(){
             .then((contents) => jsonDecode(contents))
             .then((jsonData) async {
                 var hashMap = HashMap.from(jsonData);
-            await Future.forEach(hashMap.keys, (key) async {
+            await Future.forEach(hashMap.keys, (dynamic key) async {
 
                 var wordList = getWordlist(key);
                 Mnemonic mnemonic = Mnemonic(wordList: wordList);

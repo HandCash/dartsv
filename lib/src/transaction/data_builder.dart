@@ -63,9 +63,9 @@ mixin DataLockMixin on _DataLockBuilder implements LockingScriptBuilder {
 ///    `OP_FALSE OP_RETURN <pushdata block>`
 ///
 abstract class _DataLockBuilder implements LockingScriptBuilder{
-  List<List<int>> dataStack = [];
+  List<List<int>?> dataStack = [];
 
-  _DataLockBuilder(List<int> dataBuffer){
+  _DataLockBuilder(List<int>? dataBuffer){
     dataStack.add(dataBuffer);
   }
 
@@ -88,7 +88,7 @@ abstract class _DataLockBuilder implements LockingScriptBuilder{
           && chunks[1].opcodenum == OpCodes.OP_RETURN ) {
           for (var i = 2; i < chunks.length ; i++) {
 
-            if(chunks[i].opcodenum > OpCodes.OP_PUSHDATA4){
+            if(chunks[i].opcodenum! > OpCodes.OP_PUSHDATA4){
               throw ScriptException('Only data pushes allowed. Consider doing ' +
                   'a custom LockBuilder if you have a niche use case for data. ');
             }
@@ -113,6 +113,6 @@ abstract class _DataLockBuilder implements LockingScriptBuilder{
 }
 
 class DataLockBuilder extends _DataLockBuilder with DataLockMixin{
-  DataLockBuilder(List<int> data) : super(data);
+  DataLockBuilder(List<int>? data) : super(data);
 }
 

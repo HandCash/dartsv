@@ -16,7 +16,7 @@ main(){
         var wifKey = '5HueCGU8rMjxEXxiPuD5BDku4MkFqeZyd4dZ1jvhTVqvbTLvyTJ';
         var privateKey = '0C28FCA386C7A227600B2FE50B7CAE11EC86D3BF1FBE471BE89827E19D72AA1D';
         var privkey = new SVPrivateKey.fromWIF(wifKey);
-        var decodedPrivKey = encodeBigInt(privkey.privateKey);
+        var decodedPrivKey = encodeBigInt(privkey.privateKey!);
 
         expect(HEX.encode(decodedPrivKey).toUpperCase(),equals(privateKey));
     });
@@ -25,7 +25,7 @@ main(){
         var privhex = '906977a061af29276e40bf377042ffbde414e496ae2260bbf1fa9d085637bfff';
         var pubhex = '02a1633cafcc01ebfb6d78e39f687a1f0995c62fc95f51ead10a02ee0be551b5dc';
         var privkey = SVPrivateKey.fromHex(privhex, NetworkType.MAIN);
-        expect(privkey.publicKey.getEncoded(true), equals(pubhex));
+        expect(privkey.publicKey!.getEncoded(true), equals(pubhex));
     });
 
     test('bitcoind compatibility assertions - should interpret WIF private keys correctly', () async {
@@ -102,8 +102,8 @@ main(){
 
       for (int i = 0; i < 100; i++) {
         SVPrivateKey privKey = SVPrivateKey(networkType: NetworkType.MAIN);
-        expect(privKey.privateKey < _domainParams.n, isTrue);
-        expect(privKey.privateKey.bitLength, equals(256));
+        expect(privKey.privateKey! < _domainParams.n, isTrue);
+        expect(privKey.privateKey!.bitLength, equals(256));
       }
     });
 
@@ -148,12 +148,12 @@ main(){
 
     test('creates an address as expected from WIF, livenet', () {
         SVPrivateKey privkey = SVPrivateKey.fromWIF('5J2NYGstJg7aJQEqNwYp4enG5BSfFdKXVTtBLvHicnRGD5kjxi6');
-        expect(privkey.publicKey.toAddress(NetworkType.MAIN).toString(), equals('135bwugFCmhmNU3SeCsJeTqvo5ViymgwZ9'));
+        expect(privkey.publicKey!.toAddress(NetworkType.MAIN).toString(), equals('135bwugFCmhmNU3SeCsJeTqvo5ViymgwZ9'));
     });
 
     test('creates an address as expected from WIF, testnet', () {
         SVPrivateKey privkey = SVPrivateKey.fromWIF('92VYMmwFLXRwXn5688edGxYYgMFsc3fUXYhGp17WocQhU6zG1kd');
-        expect(privkey.publicKey.toAddress(NetworkType.TEST).toString(), equals('moiAvLUw16qgrwhFGo1eDnXHC2wPMYiv7Y'));
+        expect(privkey.publicKey!.toAddress(NetworkType.TEST).toString(), equals('moiAvLUw16qgrwhFGo1eDnXHC2wPMYiv7Y'));
     });
 
 
@@ -177,7 +177,7 @@ main(){
     test('should convert this known PrivateKey to known PublicKey and preserve compressed=true', () {
         var privwif = 'L3T1s1TYP9oyhHpXgkyLoJFGniEgkv2Jhi138d7R2yJ9F4QdDU2m';
         var privkey = SVPrivateKey.fromWIF(privwif);
-        SVPublicKey pubkey = privkey.publicKey;
+        SVPublicKey pubkey = privkey.publicKey!;
         expect(pubkey.isCompressed, equals(true));
     });
 
@@ -185,7 +185,7 @@ main(){
     test('should convert this known PrivateKey to known PublicKey and preserve compressed=false', () {
         var privwif = '92jJzK4tbURm1C7udQXxeCBvXHoHJstDXRxAMouPG1k1XUaXdsu';
         var privkey = SVPrivateKey.fromWIF(privwif);
-        SVPublicKey pubkey = privkey.publicKey;
+        SVPublicKey pubkey = privkey.publicKey!;
         expect(pubkey.isCompressed, equals(false));
     });
 }

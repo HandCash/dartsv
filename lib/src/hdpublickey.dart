@@ -48,8 +48,8 @@ import 'package:pointycastle/pointycastle.dart';
 class HDPublicKey extends CKDSerializer {
     final _domainParams = new ECDomainParameters('secp256k1');
 
-    String _publicVector;
-    HDPrivateKey _hdPrivateKey;
+    String? _publicVector;
+    HDPrivateKey? _hdPrivateKey;
 
     /// Private constructor. Internal use only.
     HDPublicKey._(NetworkType networkType, KeyType keyType){
@@ -95,7 +95,7 @@ class HDPublicKey extends CKDSerializer {
         var elem = ChildNumber(index, false);
         var fingerprint = _calculateFingerprint();
         var pubkey = HEX.encode(Uint8List.fromList(this.keyBuffer).toList());
-        return _deriveChildPublicKey(this.nodeDepth, elem, fingerprint, this.chainCode, pubkey);
+        return _deriveChildPublicKey(this.nodeDepth!, elem, fingerprint, this.chainCode, pubkey);
     }
 
     /// Derive a new child public key using the indicated path
@@ -104,13 +104,13 @@ class HDPublicKey extends CKDSerializer {
     /// ```
     /// var derived = publicKey.deriveChildKey("m/0/1/2");
     /// ```
-    HDPublicKey deriveChildKey(String path) {
+    HDPublicKey? deriveChildKey(String path) {
 
         List<ChildNumber> children =  HDUtils.parsePath(path);
 
         //some imperative madness to ensure children have their parents' fingerprint
-        var fingerprint = _calculateFingerprint();
-        var parentChainCode = this.chainCode;
+        List<int> fingerprint = _calculateFingerprint();
+        List<int?>? parentChainCode = this.chainCode;
         var lastChild;
         var pubkey = HEX.encode(Uint8List.fromList(this.keyBuffer).toList());
         var nd = nodeDepth;
@@ -119,7 +119,7 @@ class HDPublicKey extends CKDSerializer {
             if (elem.isHardened())
                 throw DerivationException("Can't derived hardened public keys without private keys");
 
-            lastChild = _deriveChildPublicKey(nd, elem, fingerprint, parentChainCode, pubkey);
+            lastChild = _deriveChildPublicKey(nd!, elem, fingerprint, parentChainCode!, pubkey);
             fingerprint = lastChild._calculateFingerprint();
             parentChainCode = lastChild.chainCode;
             pubkey = HEX.encode(lastChild.keyBuffer);
@@ -139,25 +139,25 @@ class HDPublicKey extends CKDSerializer {
         return hash160(HEX.decode(encoded).toList()).sublist(0,4);
     }
 
-    HDPublicKey _deriveChildPublicKey(int nd, ChildNumber cn, List<int> fingerprint, List<int> parentChainCode, String pubkey) {
+    HDPublicKey _deriveChildPublicKey(int nd, ChildNumber cn, List<int> fingerprint, List<int?> parentChainCode, String pubkey) {
 
         //TODO: This hoopjumping is irritating. What's the better way ?
-        var seriList = List<int>(4);
+        var seriList = List<int>.filled(4, 0, growable: false);
         seriList.fillRange(0, 4, 0);
         var seriHexVal = HEX.decode(cn.i.toRadixString(16).padLeft(8, "0"));
         seriList.setRange(0, seriHexVal.length, seriHexVal);
 
-        List<int> dataConcat = HEX.decode(pubkey) + seriList;
-        var I = HDUtils.hmacSha512WithKey(Uint8List.fromList(parentChainCode), Uint8List.fromList(dataConcat));
+        List<int> dataConcat = HEX.decode(pubkey) + (seriList);
+        var I = HDUtils.hmacSha512WithKey(Uint8List.fromList(parentChainCode as List<int>), Uint8List.fromList(dataConcat));
 
         var lhs = I.sublist(0, 32);
         var chainCode = I.sublist(32,64);
 
         var parentPoint = _domainParams.curve.decodePoint(HEX.decode(pubkey));
         var privateKey = SVPrivateKey.fromHex(HEX.encode(lhs), this.networkType);
-        var pubKeyHex = HEX.decode(privateKey.publicKey.getEncoded(true));
-        var thisPoint = _domainParams.curve.decodePoint(pubKeyHex);
-        var derivedPoint = thisPoint + parentPoint;
+        var pubKeyHex = HEX.decode(privateKey.publicKey!.getEncoded(true));
+        var thisPoint = _domainParams.curve.decodePoint(pubKeyHex)!;
+        var derivedPoint = (thisPoint + parentPoint)!;
 
         //TODO: Validate that the point is on the curve !
 

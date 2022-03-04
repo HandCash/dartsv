@@ -25,7 +25,7 @@ List<int> sha1(List<int> bytes) {
 
 List<int> hash160(List<int> bytes) {
     List<int> shaHash = new SHA256Digest().process(Uint8List.fromList(bytes));
-    var ripeHash = new RIPEMD160Digest().process(shaHash);
+    var ripeHash = new RIPEMD160Digest().process(shaHash as Uint8List);
     return ripeHash.toList();
 }
 
@@ -175,7 +175,7 @@ BigInt readVarInt(Uint8List buffer) {
     }
 }
 
-int getBufferOffset(int count) {
+int? getBufferOffset(int count) {
     if (count < 0xFD)
         return 1;
 

@@ -8,8 +8,8 @@ main() {
     var derBuffer = '3044022075fc517e541bd54769c080b64397e32161c850f6c1b2b67a5c433affbb3e62770220729e85cc46ffab881065ec07694220e71d4df9b2b8c8fd12c3122cf3a5efbcf2';
 
     test('should work with conveniently setting r, s', () {
-        BigInt r;
-        BigInt s;
+        BigInt? r;
+        BigInt? s;
         var sig = SVSignature.fromECParams(r, s);
         expect(sig, isNotNull);
         expect(sig.r.toString(), equals(r.toString()));
@@ -18,8 +18,8 @@ main() {
 
     test('should parse this DER format signature', () {
         var sig = SVSignature.fromDER(derBuffer);
-        expect(sig.r.toRadixString(16), equals('75fc517e541bd54769c080b64397e32161c850f6c1b2b67a5c433affbb3e6277'));
-        expect(sig.s.toRadixString(16), equals('729e85cc46ffab881065ec07694220e71d4df9b2b8c8fd12c3122cf3a5efbcf2'));
+        expect(sig.r!.toRadixString(16), equals('75fc517e541bd54769c080b64397e32161c850f6c1b2b67a5c433affbb3e6277'));
+        expect(sig.s!.toRadixString(16), equals('729e85cc46ffab881065ec07694220e71d4df9b2b8c8fd12c3122cf3a5efbcf2'));
     });
 
 
@@ -74,8 +74,8 @@ main() {
     test('should parse this DER format signature in hex', () {
         var buf = '3044022075fc517e541bd54769c080b64397e32161c850f6c1b2b67a5c433affbb3e62770220729e85cc46ffab881065ec07694220e71d4df9b2b8c8fd12c3122cf3a5efbcf2';
         var sig = SVSignature.fromDER(buf);
-        expect(sig.r.toRadixString(16), equals('75fc517e541bd54769c080b64397e32161c850f6c1b2b67a5c433affbb3e6277'));
-        expect(sig.s.toRadixString(16), equals('729e85cc46ffab881065ec07694220e71d4df9b2b8c8fd12c3122cf3a5efbcf2'));
+        expect(sig.r!.toRadixString(16), equals('75fc517e541bd54769c080b64397e32161c850f6c1b2b67a5c433affbb3e6277'));
+        expect(sig.s!.toRadixString(16), equals('729e85cc46ffab881065ec07694220e71d4df9b2b8c8fd12c3122cf3a5efbcf2'));
     });
 
 
@@ -125,7 +125,7 @@ main() {
         var sig = SVSignature.fromECParams(r, s);
         var der = sig.toDER();
 
-        expect(HEX.encode(der), equals(
+        expect(HEX.encode(der as List<int>), equals(
             '30450221008bab1f0a2ff2f9cb8992173d8ad73c229d31ea8e10b0f4d4ae1a0d8ed76021fa02200993a6ec81755b9111762fc2cf8e3ede73047515622792110867d12654275e72'));
     });
 

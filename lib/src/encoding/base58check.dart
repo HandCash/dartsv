@@ -14,26 +14,26 @@ var ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 List<int> decode(String input) {
   if (input.isEmpty) {
-    return List<int>();
+    return List<int>.empty();
   }
 
   var encodedInput = utf8.encode(input);
   var uintAlphabet = utf8.encode(ALPHABET);
 
-  List<int> INDEXES = List<int>(128)..fillRange(0, 128, -1);
+  var INDEXES = List<int?>.filled(128, null, growable: false)..fillRange(0, 128, -1);
   for (int i = 0; i < ALPHABET.length; i++) {
       INDEXES[uintAlphabet[i]] = i;
   }
 
   // Convert the base58-encoded ASCII chars to a base58 byte sequence (base58 digits).
-  List<int> input58 = List<int>(encodedInput.length);
+  List<int?> input58 = List<int?>.filled(encodedInput.length, null, growable: false);
   input58.fillRange(0, input58.length, 0);
   for (int i = 0; i < encodedInput.length; ++i) {
     var c = encodedInput[i];
-    var digit = c < 128 ? INDEXES[c] : -1;
+    var digit = c < 128 ? INDEXES[c]! : -1;
     if (digit < 0) {
-      var buff = List<int>(1)..add(c);
-      var invalidChar = utf8.decode(buff);
+      var buff = List<int?>.filled(1, null, growable: false)..add(c);
+      var invalidChar = utf8.decode(buff as List<int>);
       throw new AddressFormatException(
           "Illegal character " + invalidChar + " at position " + i.toString());
     }
@@ -47,7 +47,7 @@ List<int> decode(String input) {
   }
 
   // Convert base-58 digits to base-256 digits.
-  var decoded = List<int>(encodedInput.length);
+  var decoded = List<int>.filled(encodedInput.length, 0, growable: false);
   decoded.fillRange(0, decoded.length, 0);
   int outputStart = decoded.length;
   for (int inputStart = zeros; inputStart < input58.length;) {
@@ -71,11 +71,11 @@ List<int> decode(String input) {
  * in the specified base, by the given divisor. The given number is modified in-place
  * to contain the quotient, and the return value is the remainder.
  */
-divmod(List<int> number, int firstDigit, int base, int divisor) {
+divmod(List<int?> number, int firstDigit, int base, int divisor) {
 // this is just long division which accounts for the base of the input digits
   int remainder = 0;
   for (int i = firstDigit; i < number.length; i++) {
-    int digit = number[i] & 0xFF;
+    int digit = number[i]! & 0xFF;
     int temp = remainder * base + digit;
     number[i] = (temp / divisor).toInt();
     remainder = temp % divisor;
@@ -88,14 +88,14 @@ divmod(List<int> number, int firstDigit, int base, int divisor) {
 /**
  * Encodes the given bytes as a base58 string (no checksum is appended).
  */
-Uint8List encode(List<int> encodedInput){
+Uint8List encode(List<int?> encodedInput){
     var uintAlphabet = utf8.encode(ALPHABET);
     var ENCODED_ZERO = uintAlphabet[0];
 
 //    var encodedInput = utf8.encode(input);
 
     if (encodedInput.isEmpty) {
-        return List<int>();
+        return <int>[] as Uint8List;
     }
 
     // Count leading zeros.

@@ -56,7 +56,7 @@ void main() {
             test('should instantiate from a raw block binary', () {
                 var x = BlockHeader.fromRawBlock(dataRawBlockBinary);
                 expect(x.version, equals(2));
-                expect(BigInt.from(x.bits).toRadixString(16), equals('1c3fffc0'));
+                expect(BigInt.from(x.bits!).toRadixString(16), equals('1c3fffc0'));
             });
         });
 

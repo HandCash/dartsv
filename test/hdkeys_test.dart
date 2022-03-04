@@ -63,80 +63,80 @@ void main() {
     });
 
     test("should get m/0' ext. private key from test vector 1", () {
-        var privateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'");
+        var privateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'")!;
         expect(privateKey.xprivkey, equals(vector1m0hprivate));
     });
 
 
     test("should get m/0' ext. public key from test vector 1", () {
-        var hdPrivateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'");
+        var hdPrivateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'")!;
         expect(hdPrivateKey.xpubkey, equals(vector1m0hPublic));
     });
 
 
     test("should get m/0'/1 ext. private key from test vector 1", () {
-        var hdPrivateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1");
+        var hdPrivateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1")!;
         expect(hdPrivateKey.xprivkey, equals(vector1m0h1private));
     });
 
     test("should get m/0'/1 ext. public key from test vector 1", () {
-        var privateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1");
+        var privateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1")!;
         expect(privateKey.xpubkey ,equals(vector1m0h1public));
     });
 
     test("should get m/0'/1 ext. public key from m/0' private key from test vector 1", () {
-        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'");
+        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'")!;
         var publicKeyObj = HDPublicKey.fromXpub(privateKey.xpubkey);
-        var derivedPublic = publicKeyObj.deriveChildKey('m/1');
+        var derivedPublic = publicKeyObj.deriveChildKey('m/1')!;
         expect(derivedPublic.xpubkey, equals(vector1m0h1public));
     });
 
     test("should get m/0'/1/2' ext. private key from test vector 1", () {
         var privateKey = HDPrivateKey.fromXpriv(vector1MPrivate);
-        var derived = privateKey.deriveChildKey("m/0'/1/2'");
+        var derived = privateKey.deriveChildKey("m/0'/1/2'")!;
         expect(derived.xprivkey, equals(vector1m0h12hprivate));
     });
 
 
     test("should get m/0'/1/2' ext. public key from test vector 1", () {
-        var privateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1/2'");
+        var privateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1/2'")!;
         expect(privateKey.xpubkey, equals(vector1m0h12hpublic));
     });
 
     test("should get m/0'/1/2'/2 ext. private key from test vector 1", () {
-        var privateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1/2'/2");
+        var privateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1/2'/2")!;
         expect(privateKey.xprivkey, equals(vector1m0h12h2private));
     });
 
 
     test("should get m/0'/1/2'/2 ext. public key from m/0'/1/2' public key from test vector 1", () {
-        HDPrivateKey derived = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1/2'");
+        HDPrivateKey derived = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1/2'")!;
         HDPublicKey hdPublicKey = derived.hdPublicKey;
-        expect(hdPublicKey.deriveChildKey('m/2').xpubkey, equals(vector1m0h12h2public));
+        expect(hdPublicKey.deriveChildKey('m/2')!.xpubkey, equals(vector1m0h12h2public));
     });
 
 
     test("should get m/0'/1/2h/2 ext. public key from test vector 1", () {
-        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1/2'/2");
+        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1/2'/2")!;
         expect(privateKey.xpubkey, equals(vector1m0h12h2public));
     });
 
 
     test("should get m/0'/1/2h/2/1000000000 ext. private key from test vector 1", () {
-        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1/2'/2/1000000000");
+        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1/2'/2/1000000000")!;
         expect(privateKey.xprivkey, equals(vector1m0h12h21000000000private));
     });
 
 
     test("should get m/0'/1/2h/2/1000000000 ext. public key from test vector 1", () {
-        HDPrivateKey hdPrivateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1/2'/2/1000000000");
+        HDPrivateKey hdPrivateKey = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1/2'/2/1000000000")!;
         expect(hdPrivateKey.xpubkey, equals(vector1m0h12h21000000000public));
     });
 
 
     test("should get m/0'/1/2'/2/1000000000 ext. public key from m/0'/1/2'/2 public key from test vector 1", () {
-        var derived = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1/2'/2").hdPublicKey;
-        expect(derived.deriveChildKey('m/1000000000').xpubkey, equals(vector1m0h12h21000000000public));
+        var derived = HDPrivateKey.fromXpriv(vector1MPrivate).deriveChildKey("m/0'/1/2'/2")!.hdPublicKey;
+        expect(derived.deriveChildKey('m/1000000000')!.xpubkey, equals(vector1m0h12h21000000000public));
     });
 
 
@@ -165,57 +165,57 @@ void main() {
     });
 
     test('should get m/0/2147483647h ext. private key from test vector 2', () {
-        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'");
+        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'")!;
         expect(privateKey.xprivkey, equals(vector2m02147483647hprivate));
     });
 
     test('should get m/0/2147483647h ext. public key from test vector 2', () {
-        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'");
+        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'")!;
         expect(privateKey.xpubkey, equals(vector2m02147483647hpublic));
     });
 
     test('should get m/0/2147483647h/1 ext. private key from test vector 2', () {
-        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'/1");
+        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'/1")!;
         expect(privateKey.xprivkey, equals(vector2m02147483647h1private));
     });
 
 
     test('should get m/0/2147483647h/1 ext. public key from test vector 2', () {
-        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'/1");
+        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'/1")!;
         expect(privateKey.xpubkey, equals(vector2m02147483647h1public));
     });
 
 
     test('should get m/0/2147483647h/1 ext. public key from m/0/2147483647h public key from test vector 2', () {
-        var derived = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'").hdPublicKey;
+        var derived = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'")!.hdPublicKey;
         expect(derived.deriveChildNumber(1).xpubkey, equals(vector2m02147483647h1public));
     });
 
     test('should get m/0/2147483647h/1/2147483646h ext. private key from test vector 2', () {
-       HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'/1/2147483646'");
+       HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'/1/2147483646'")!;
        expect(privateKey.xprivkey, equals(vector2m02147483647h12147483646hprivate));
     });
 
 
     test('should get m/0/2147483647h/1/2147483646h ext. public key from test vector 2', () {
-        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'/1/2147483646'");
+        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'/1/2147483646'")!;
         expect(privateKey.xpubkey, equals(vector2m02147483647h12147483646hpublic));
     });
 
     test('should get m/0/2147483647h/1/2147483646h/2 ext. private key from test vector 2', () {
-        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'/1/2147483646'/2");
+        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'/1/2147483646'/2")!;
         expect(privateKey.xprivkey, equals(vector2m02147483647h12147483646h2private));
     });
 
 
     test('should get m/0/2147483647h/1/2147483646h/2 ext. public key from test vector 2', () {
-        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'/1/2147483646'/2");
+        HDPrivateKey privateKey = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'/1/2147483646'/2")!;
         expect(privateKey.xpubkey, equals(vector2m02147483647h12147483646h2public));
     });
 
     test('should get m/0/2147483647h/1/2147483646h/2 ext. public key from m/0/2147483647h/2147483646h public key from test vector 2', () {
-        HDPublicKey derivedPublic = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'/1/2147483646'").hdPublicKey;
-        expect(derivedPublic.deriveChildKey('m/2').xpubkey, equals(vector2m02147483647h12147483646h2public));
+        HDPublicKey derivedPublic = HDPrivateKey.fromXpriv(vector2mprivate).deriveChildKey("m/0/2147483647'/1/2147483646'")!.hdPublicKey;
+        expect(derivedPublic.deriveChildKey('m/2')!.xpubkey, equals(vector2m02147483647h12147483646h2public));
     });
 
     test('should initialize a new BIP32 correctly from test vector 1 seed', () {

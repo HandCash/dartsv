@@ -14,9 +14,9 @@ mixin P2SHLockMixin on _P2SHLockBuilder implements LockingScriptBuilder {
   @override
   SVScript getScriptPubkey(){
    // OP_HASH160 <the script hash> OP_EQUAL
-    if (scriptHash == null || scriptHash.isEmpty) return SVScript();
+    if (scriptHash == null || scriptHash!.isEmpty) return SVScript();
 
-    var hashHex = HEX.decode(scriptHash);
+    var hashHex = HEX.decode(scriptHash!);
     var script = sprintf('OP_HASH160 %s 0x%s OP_EQUAL', [hashHex.length, scriptHash]);
 
     return SVScript.fromString(script);
@@ -26,7 +26,7 @@ mixin P2SHLockMixin on _P2SHLockBuilder implements LockingScriptBuilder {
 
 abstract class _P2SHLockBuilder implements LockingScriptBuilder {
 
-  String scriptHash;
+  String? scriptHash;
 
   _P2SHLockBuilder(this.scriptHash);
 
@@ -52,7 +52,7 @@ abstract class _P2SHLockBuilder implements LockingScriptBuilder {
 }
 
 class P2SHLockBuilder extends _P2SHLockBuilder with P2SHLockMixin {
-  P2SHLockBuilder(String hash) : super(hash);
+  P2SHLockBuilder(String? hash) : super(hash);
 }
 
 
@@ -60,7 +60,7 @@ class P2SHLockBuilder extends _P2SHLockBuilder with P2SHLockMixin {
 mixin P2SHUnlockMixin on _P2SHUnlockBuilder implements UnlockingScriptBuilder{
 
   @override
-  SVScript getScriptSig() {
+  SVScript? getScriptSig() {
     return script;
   }
 
@@ -75,12 +75,12 @@ abstract class _P2SHUnlockBuilder extends SignedUnlockBuilder implements Unlocki
   @override
   List<SVSignature> signatures = <SVSignature>[];
 
-  SVScript script;
+  SVScript? script;
 
   _P2SHUnlockBuilder();
 
   @override
-  void fromScript(SVScript script) {
+  void fromScript(SVScript? script) {
     if (script != null && script.buffer != null) {
       this.script = script;
     }else{
@@ -88,7 +88,7 @@ abstract class _P2SHUnlockBuilder extends SignedUnlockBuilder implements Unlocki
     }
   }
 
-  SVScript get scriptSig => getScriptSig();
+  SVScript? get scriptSig => getScriptSig();
 }
 
 class P2SHUnlockBuilder extends _P2SHUnlockBuilder with P2SHUnlockMixin{

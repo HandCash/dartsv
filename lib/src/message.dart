@@ -17,8 +17,8 @@ import 'encoding/utils.dart';
 ///
 /// Reference (section 4.1.6) : http://www.secg.org/sec1-v2.pdf
 class Message {
-    List<int> _message;
-    SVPrivateKey _privateKey;
+    List<int>? _message;
+    SVPrivateKey? _privateKey;
 
 
     final MAGIC_BYTES = 'Bitcoin Signed Message:\n';
@@ -37,8 +37,8 @@ class Message {
     List<int> magicHash() {
 
         var prefix1 = MAGIC_BYTES.length;
-        var prefix2 = this._message.length;
-        var buf = HEX.encode([prefix1] + utf8.encode(MAGIC_BYTES) + [prefix2] + this._message);
+        var prefix2 = this._message!.length;
+        var buf = HEX.encode([prefix1] + utf8.encode(MAGIC_BYTES) + [prefix2] + this._message!);
         var hash = sha256Twice(HEX.decode(buf));
         return hash;
     }
@@ -78,7 +78,7 @@ class Message {
     bool verifyFromAddress(Address address, String sigBuffer) {
         SVSignature signature = SVSignature.fromCompact(base64Decode(sigBuffer), this.magicHash());
 
-        SVPublicKey recoveredPubKey = signature.publicKey;
+        SVPublicKey recoveredPubKey = signature.publicKey!;
 
         Address recoveredAddress = recoveredPubKey.toAddress(address.networkType);
 
@@ -101,7 +101,7 @@ class Message {
 
         SVSignature signature = SVSignature.fromCompact(base64Decode(sigBuffer), this.magicHash());
 
-        SVPublicKey recoveredKey = signature.publicKey;
+        SVPublicKey recoveredKey = signature.publicKey!;
 
         //sanity check on public key
         if (recoveredKey.point != publicKey.point) {
@@ -122,6 +122,6 @@ class Message {
 
 
     /// The message we are signing/verifying
-    List<int> get message => _message;
+    List<int>? get message => _message;
 
 }

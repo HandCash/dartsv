@@ -73,23 +73,23 @@ enum TransactionOption {
 /// `4 bytes` - A time (Unix epoch time) or block number. See the [nLockTime] parsing rules.
 ///
 class Transaction{
-    int _version = 1;
-    int _nLockTime = 0;
+    int? _version = 1;
+    int? _nLockTime = 0;
     final List<TransactionInput> _txnInputs = [];  //this transaction's inputs
     final List<TransactionOutput> _txnOutputs = []; //this transaction's outputs
     final List<TransactionOutput> _utxos = [];  //the UTXOs from spent Transaction
-    Address _changeAddress;
-    LockingScriptBuilder _changeScriptBuilder;
+    Address? _changeAddress;
+    LockingScriptBuilder? _changeScriptBuilder;
     final Set<TransactionOption> _transactionOptions = Set<TransactionOption>();
 
-    List<int> _txHash;
-    String _txId;
+    late List<int> _txHash;
+    String? _txId;
 
     static final SHA256Digest _sha256Digest = SHA256Digest();
     final ECDSASigner _dsaSigner = ECDSASigner(null, HMac(_sha256Digest, 64));
     final ECDomainParameters _domainParams = ECDomainParameters('secp256k1');
 
-    BigInt _fee;
+    BigInt? _fee;
     bool _changeScriptFlag = false;
 
     var CURRENT_VERSION = 1;
@@ -183,7 +183,7 @@ class Transaction{
         _nLockTime = map['nLockTime'];
         (map['inputs'] as List).forEach((input) {
             var tmpTx = TransactionInput(input['prevTxId'], input['outputIndex'], SVScript() , BigInt.zero, input['sequenceNumber']);
-            tmpTx.scriptBuilder.fromScript(SVScript.fromHex(input['script']));
+            tmpTx.scriptBuilder!.fromScript(SVScript.fromHex(input['script']));
             _txnInputs.add(tmpTx);
         });
 
@@ -229,7 +229,7 @@ class Transaction{
     }
 
     //The id is the hex encoded form of the hash
-    String _getId(){
+    String? _getId(){
         var id = HEX.encode(_getHash().reversed.toList());
         _txId = id;
         return _txId;
@@ -238,7 +238,7 @@ class Transaction{
     /// Returns the transaction ID.
     ///
     /// The transaction ID is the double-sha256 of the raw (hexadecimal) transaction.
-    String get id => _getId();
+    String? get id => _getId();
 
     // transaction Hash - FIXME: I thought 'id' should be equal to 'hash' ? VALIDATE !
     /// Returns the double-sha256 of the raw (hexadecimal) transaction
@@ -266,7 +266,7 @@ class Transaction{
         ByteDataWriter writer = ByteDataWriter();
 
         // set the transaction version
-        writer.writeInt32(version, Endian.little);
+        writer.writeInt32(version!, Endian.little);
 
         // set the number of inputs
         writer.write(varintBufNum(inputs.length));
@@ -285,7 +285,7 @@ class Transaction{
         });
 
         // write the locktime
-        writer.writeUint32(nLockTime, Endian.little);
+        writer.writeUint32(nLockTime!, Endian.little);
 
         return HEX.encode(writer.toBytes().toList());
     }
@@ -295,7 +295,7 @@ class Transaction{
     /// *Builder pattern*
     ///
     ///
-    Transaction spendTo(Address recipient, BigInt sats, {LockingScriptBuilder scriptBuilder = null}) {
+    Transaction spendTo(Address recipient, BigInt sats, {LockingScriptBuilder? scriptBuilder = null}) {
         if (sats <= BigInt.zero) throw  TransactionAmountException('You can only spend a positive amount of satoshis');
 
         scriptBuilder ??= P2PKHLockBuilder(recipient);
@@ -324,7 +324,7 @@ class Transaction{
     ///                   A null value results in a [P2PKHLockBuilder] being used by default, which will create a Pay-to-Public-Key-Hash output script.
     ///
     /// Returns an instance of the current Transaction as part of the builder pattern.
-    Transaction sendChangeTo(Address changeAddress, {LockingScriptBuilder scriptBuilder = null}) {
+    Transaction sendChangeTo(Address changeAddress, {LockingScriptBuilder? scriptBuilder = null}) {
 
         scriptBuilder ??= P2PKHLockBuilder(changeAddress);
 
@@ -360,7 +360,7 @@ class Transaction{
     ///
     /// Returns an instance of the current Transaction as part of the builder pattern.
     ///
-    Transaction addData(List<int> data, {DataLockBuilder scriptBuilder = null}) {
+    Transaction addData(List<int> data, {DataLockBuilder? scriptBuilder = null}) {
 
         scriptBuilder ??= DataLockBuilder(data) ;
 
@@ -412,7 +412,7 @@ class Transaction{
         return this;
     }*/
 
-    Transaction spendFromOutput(TransactionOutput utxo, int sequenceNumber, {UnlockingScriptBuilder scriptBuilder = null}){
+    Transaction spendFromOutput(TransactionOutput utxo, int sequenceNumber, {UnlockingScriptBuilder? scriptBuilder = null}){
 
         scriptBuilder ??= DefaultUnlockBuilder();
 
@@ -443,7 +443,7 @@ class Transaction{
     ///
     /// Returns an instance of the current Transaction as part of the builder pattern.
     ///
-    Transaction spendFromMap(Map<String, Object> map, {UnlockingScriptBuilder scriptBuilder = null }) {
+    Transaction spendFromMap(Map<String, dynamic> map, {UnlockingScriptBuilder? scriptBuilder = null }) {
         //FIXME: More robust validation / error handling needed here.
         if (map['satoshis'] == null || !(map['satoshis'] is BigInt)) {
             throw UTXOException('An amount to spend is required in BigInt format');
@@ -461,10 +461,10 @@ class Transaction{
             throw UTXOException('scriptPubKey from UTXO is required');
         }
 
-        BigInt amountToSpend = map['satoshis'];
-        String transactionId = map['txId'];
-        int outputIndex = map['outputIndex'];
-        String scriptPubKey = map['scriptPubKey'];
+        BigInt? amountToSpend = map['satoshis'] as BigInt?;
+        String? transactionId = map['txId'] as String?;
+        int? outputIndex = map['outputIndex'] as int?;
+        String scriptPubKey = map['scriptPubKey'] as String;
 
         scriptBuilder ??= DefaultUnlockBuilder();
 
@@ -514,7 +514,7 @@ class Transaction{
 
         //FIXME: This should account for ANYONECANPAY mask that limits outputs to sign over
         ///      NOTE: Stripping Subscript should be done inside SIGHASH class
-        var subscript = input.subScript; //scriptSig FIXME: WTF !? Sighash should fail on this
+        var subscript = input.subScript!; //scriptSig FIXME: WTF !? Sighash should fail on this
         var inputIndex = inputs.indexOf(input);
         var sigHash = Sighash();
         var hash = sigHash.hash(this,sighashType, inputIndex, subscript, input.satoshis);
@@ -543,7 +543,7 @@ class Transaction{
 
 
     //FIXME: Check under which circumstances this long list of params is actually required. Can be trimmed ?
-    bool verifySignature(SVSignature sig, SVPublicKey pubKey, int inputNumber, SVScript subscript, BigInt satoshis, int flags){
+    bool verifySignature(SVSignature sig, SVPublicKey pubKey, int? inputNumber, SVScript subscript, BigInt? satoshis, int flags){
         var sigHash = Sighash();
         var hash = sigHash.hash(this, sig.nhashtype, inputNumber, subscript, satoshis, flags: flags);
 
@@ -552,7 +552,7 @@ class Transaction{
         _dsaSigner.init(false, PublicKeyParameter(publicKey));
 
         var decodedMessage = Uint8List.fromList(HEX.decode(hash).reversed.toList()); //FIXME: More reversi !
-        return _dsaSigner.verifySignature(decodedMessage,ECSignature(sig.r, sig.s));
+        return _dsaSigner.verifySignature(decodedMessage,ECSignature(sig.r!, sig.s!));
     }
 
 
@@ -642,7 +642,7 @@ class Transaction{
         //FIXME: Figure out how to use Type System to force consumer of this
         // method to think about the return value. e.g. scala.Option
 
-        var timestamp = _nLockTime;
+        var timestamp = _nLockTime!;
         if (timestamp < 500000000) {
             return timestamp;
         } else {
@@ -668,10 +668,10 @@ class Transaction{
             if (txout.invalidSatoshis()) {
                 return 'transaction txout $ndx satoshis is invalid';
             }
-            if (txout.satoshis > Transaction.MAX_MONEY) {
+            if (txout.satoshis! > Transaction.MAX_MONEY) {
                 return 'transaction txout ${ndx} greater than MAX_MONEY';
             }
-            valueoutbn = valueoutbn + txout.satoshis;
+            valueoutbn = valueoutbn + txout.satoshis!;
             if (valueoutbn > Transaction.MAX_MONEY) {
                 return 'transaction txout ${ndx} total output greater than MAX_MONEY';
             }
@@ -688,7 +688,7 @@ class Transaction{
         for (var i = 0; i < inputs.length; i++) {
             var txin = inputs[i];
 
-            var inputid = txin.prevTxnId + ':' + txin.prevTxnOutputIndex.toString();
+            var inputid = txin.prevTxnId! + ':' + txin.prevTxnOutputIndex.toString();
             if (txinmap[inputid] != null) {
                 return 'transaction input ' + i.toString() + ' duplicate input';
             }
@@ -696,7 +696,7 @@ class Transaction{
         }
 
         if (isCoinbase()) {
-            var buf = inputs[0].script.buffer;
+            var buf = inputs[0].script!.buffer;
             if (buf.length < 2 || buf.length > 100) {
                 return 'coinbase transaction script size invalid';
             }
@@ -713,7 +713,7 @@ class Transaction{
 
 
 
-    TransactionOutput getChangeOutput(LockingScriptBuilder changeBuilder) {
+    TransactionOutput getChangeOutput(LockingScriptBuilder? changeBuilder) {
         var outputs = _txnOutputs.where((elem) => elem.isChangeOutput);
 
         if (outputs.isEmpty) {
@@ -729,7 +729,7 @@ class Transaction{
 
     bool isCoinbase() {
         //if we have a Transaction with one input, and a prevTransactionId of zeroooos, it's a coinbase.
-        return (_txnInputs.length == 1 && (_txnInputs[0].prevTxnId == null || _txnInputs[0].prevTxnId.replaceAll('0', '').trim() == ''));
+        return (_txnInputs.length == 1 && (_txnInputs[0].prevTxnId == null || _txnInputs[0].prevTxnId!.replaceAll('0', '').trim() == ''));
     }
 
 
@@ -749,7 +749,7 @@ class Transaction{
     ///  estimate the fee based on size.
     ///
     ///  *NOTE* : This fee calculation strategy is taken from the MoneyButton/BSV library.
-    BigInt getFee() {
+    BigInt? getFee() {
         if (isCoinbase()) {
             return BigInt.zero;
         }
@@ -796,7 +796,7 @@ class Transaction{
         }
 
         for (var output in _txnOutputs) {
-            if (output.satoshis < Transaction.DUST_AMOUNT && !(output.isDataOut) ) {
+            if (output.satoshis! < Transaction.DUST_AMOUNT && !(output.isDataOut) ) {
                 throw  TransactionAmountException('You have outputs with spending values below the dust limit');
             }
         }
@@ -813,7 +813,7 @@ class Transaction{
 
     void _checkForFeeErrors(BigInt unspent) {
         if ((_fee != null) && (_fee != unspent)) {
-            var errorMessage = 'Unspent value is ' + unspent.toRadixString(10) + ' but specified fee is ' + _fee.toRadixString(10);
+            var errorMessage = 'Unspent value is ' + unspent.toRadixString(10) + ' but specified fee is ' + _fee!.toRadixString(10);
             throw  TransactionFeeException(errorMessage);
         }
 
@@ -860,7 +860,7 @@ class Transaction{
     }
 
 
-    bool _inputExists(String transactionId, int outputIndex) =>
+    bool _inputExists(String? transactionId, int? outputIndex) =>
         _txnInputs
             .where((input) => input.prevTxnId == transactionId && input.prevTxnOutputIndex == outputIndex)
             .isNotEmpty;
@@ -889,7 +889,7 @@ class Transaction{
         //can't spend negative amount of change :/
         if (changeAmount > BigInt.zero) {
             txnOutput.satoshis = changeAmount;
-            txnOutput.script = _changeScriptBuilder.getScriptPubkey();
+            txnOutput.script = _changeScriptBuilder!.getScriptPubkey();
             txnOutput.isChangeOutput = true;
             _txnOutputs.add(txnOutput);
         }
@@ -900,19 +900,19 @@ class Transaction{
     BigInt _nonChangeRecipientTotals() {
         return _txnOutputs
             .where((txnOut) => !txnOut.isChangeOutput)
-            .fold(BigInt.zero, (BigInt prev, elem) => prev + elem.satoshis);
+            .fold(BigInt.zero, (BigInt prev, elem) => prev + elem.satoshis!);
     }
 
-    BigInt _recipientTotals() => _txnOutputs.fold(BigInt.zero, (BigInt prev, elem) => prev + elem.satoshis);
+    BigInt _recipientTotals() => _txnOutputs.fold(BigInt.zero, (BigInt prev, elem) => prev + elem.satoshis!);
 
-    BigInt _inputTotals() => _txnInputs.fold(BigInt.zero, (BigInt prev, elem) => prev + elem.satoshis);
+    BigInt _inputTotals() => _txnInputs.fold(BigInt.zero, (BigInt prev, elem) => prev + elem.satoshis!);
 
     BigInt _recalculateChange() {
         var inputAmount = _inputTotals();
         var outputAmount = _nonChangeRecipientTotals();
         var unspent = inputAmount - outputAmount;
 
-        return unspent - getFee();
+        return unspent - getFee()!;
     }
 
     bool _hasChangeScript() => _changeScriptFlag; //{
@@ -923,7 +923,7 @@ class Transaction{
     /// Estimates fee from serialized transaction size in bytes.
     BigInt _getUnspentValue() {
         BigInt inputAmount = _inputTotals();
-        BigInt outputAmount = _txnOutputs.fold(BigInt.zero, (BigInt prev, TransactionOutput elem) => prev + elem.satoshis);
+        BigInt outputAmount = _txnOutputs.fold(BigInt.zero, (BigInt prev, TransactionOutput elem) => prev + elem.satoshis!);
 
         return inputAmount - outputAmount;
     }
@@ -959,21 +959,21 @@ class Transaction{
 
     void _sortInputs(List<TransactionInput> txns) {
         txns.sort((lhs, rhs) {
-            var txnIdComparison = lhs.prevTxnId.compareTo(rhs.prevTxnId);
+            var txnIdComparison = lhs.prevTxnId!.compareTo(rhs.prevTxnId!);
 
             if (txnIdComparison != 0) {
                 //we use the prevTxnId to sort
                 return txnIdComparison;
             } else {
                 //txnIds can't be used (probably 'cause there's only one)
-                return lhs.prevTxnOutputIndex - rhs.prevTxnOutputIndex;
+                return lhs.prevTxnOutputIndex! - rhs.prevTxnOutputIndex!;
             }
         });
     }
 
     void _sortOutputs(List<TransactionOutput> txns) {
         txns.sort((lhs, rhs) {
-            var satoshiComparison = lhs.satoshis - rhs.satoshis;
+            var satoshiComparison = lhs.satoshis! - rhs.satoshis!;
             if (satoshiComparison != BigInt.zero) {
                 return satoshiComparison > BigInt.zero ? 1 : -1;
             }else {
@@ -989,14 +989,14 @@ class Transaction{
     BigInt get inputAmount => _inputTotals();
 
     /// Returns the transaction version number
-    int get version {
+    int? get version {
         return _version;
     }
 
     /// Sets the transaction version number
     ///
     /// [version] - the version number
-    set version(int version) {
+    set version(int? version) {
         _version = version;
     }
 
@@ -1008,12 +1008,12 @@ class Transaction{
     /// If nLocktime < 500000000 , then it's a blockheight. Anytime over that number
     /// is interpreted as a timestamp.
     /// If all inputs in a transaction have [TransactionInput.sequenceNumber] equal to UINT_MAX, then nLockTime is ignored.
-    int get nLockTime {
+    int? get nLockTime {
         return _nLockTime;
     }
 
     /// Sets the time before this transaction may be included in a block.
-    set nLockTime(int lockTime) {
+    set nLockTime(int? lockTime) {
         _nLockTime = lockTime;
     }
 

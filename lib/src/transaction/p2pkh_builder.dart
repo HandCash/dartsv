@@ -14,12 +14,12 @@ mixin P2PKHLockMixin on _P2PKHLockBuilder implements LockingScriptBuilder {
   @override
   SVScript getScriptPubkey(){
 
-    String destAddress;
+    String? destAddress;
     int addressLength;
     if (address != null) {
-      destAddress = address.address; //hash160(pubkey) aka pubkeyHash
+      destAddress = address!.address; //hash160(pubkey) aka pubkeyHash
 
-      addressLength = HEX.decode(destAddress).length;
+      addressLength = HEX.decode(destAddress!).length;
 
       //FIXME: Another hack. For some reason some addresses don't have proper ripemd160 hashes of the hex value. Fix later !
       if (addressLength == 33) {
@@ -27,8 +27,8 @@ mixin P2PKHLockMixin on _P2PKHLockBuilder implements LockingScriptBuilder {
         destAddress = HEX.encode(hash160(HEX.decode(destAddress)));
       }
     }else if (pubkeyHash != null) {
-      addressLength = pubkeyHash.length;
-      destAddress = HEX.encode(pubkeyHash);
+      addressLength = pubkeyHash!.length;
+      destAddress = HEX.encode(pubkeyHash!);
     }else{
       return SVScript(); //return empty script if no pubkeyHash or Address
     }
@@ -40,14 +40,14 @@ mixin P2PKHLockMixin on _P2PKHLockBuilder implements LockingScriptBuilder {
 }
 
 abstract class _P2PKHLockBuilder implements LockingScriptBuilder {
-  Address address;
-  List<int> pubkeyHash;
+  Address? address;
+  List<int>? pubkeyHash;
 
   _P2PKHLockBuilder(this.address);
 
   _P2PKHLockBuilder.fromPublicKey(SVPublicKey publicKey, {NetworkType networkType= NetworkType.MAIN}){
     address = publicKey.toAddress(networkType);
-    pubkeyHash = HEX.decode(address.pubkeyHash160);
+    pubkeyHash = HEX.decode(address!.pubkeyHash160!);
   }
 
   @override
@@ -110,7 +110,7 @@ mixin P2PKHUnlockMixin on _P2PKHUnlockBuilder implements UnlockingScriptBuilder{
 }
 
 abstract class _P2PKHUnlockBuilder extends SignedUnlockBuilder implements UnlockingScriptBuilder {
-  SVPublicKey signerPubkey;
+  SVPublicKey? signerPubkey;
 
   @override
   List<SVSignature> signatures = <SVSignature>[];
@@ -123,7 +123,7 @@ abstract class _P2PKHUnlockBuilder extends SignedUnlockBuilder implements Unlock
   // Parse signature and signerPubkey
 
   @override
-  void fromScript(SVScript script) {
+  void fromScript(SVScript? script) {
     if (script != null && script.buffer != null) {
 
       var chunkList = script.chunks;
@@ -148,7 +148,7 @@ abstract class _P2PKHUnlockBuilder extends SignedUnlockBuilder implements Unlock
     }
   }
 
-  SVScript get scriptSig => getScriptSig();
+  SVScript? get scriptSig => getScriptSig();
 
 
 }
@@ -160,7 +160,7 @@ class P2PKHUnlockBuilder extends _P2PKHUnlockBuilder with P2PKHUnlockMixin{
 
   //Expect the Signature to be injected after the fact. Input Signing is a
   //weird one.
-  P2PKHUnlockBuilder(SVPublicKey signerPubkey) : super(signerPubkey);
+  P2PKHUnlockBuilder(SVPublicKey? signerPubkey) : super(signerPubkey);
 
 }
 

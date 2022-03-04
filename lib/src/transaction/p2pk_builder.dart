@@ -75,10 +75,10 @@ abstract class _P2PKUnlockBuilder extends SignedUnlockBuilder implements Unlocki
   List<SVSignature> signatures = <SVSignature>[];
 
   @override
-  SVScript get scriptSig => getScriptSig();
+  SVScript? get scriptSig => getScriptSig();
 
   @override
-  void fromScript(SVScript script) {
+  void fromScript(SVScript? script) {
     throw UnimplementedError();
   }
 

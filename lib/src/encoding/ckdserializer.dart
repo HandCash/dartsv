@@ -15,14 +15,14 @@ abstract class CKDSerializer {
     static final List<int> TESTNET_PUBLIC  = HEX.decode("043587CF");
     static final List<int> TESTNET_PRIVATE = HEX.decode("04358394");
 
-    int _nodeDepth;
-    List<int> _parentFingerprint = List(4); //Uint32
-    List<int> _childNumber = List(4);       //Uint32
-    List<int> _chainCode = List(32);        //Uint8List(32)
-    List<int> _keyHex = List(33);           //Uint8List(33)
-    List<int> _versionBytes = List(4);      //Uint32
-    NetworkType _networkType;
-    KeyType _keyType;
+    late int _nodeDepth = 0;
+    late List<int> _parentFingerprint = List.filled(4, 0, growable: false); //Uint32
+    late List<int> _childNumber = List.filled(4, 0, growable: false);       //Uint32
+    late List<int> _chainCode = List.filled(32, 0, growable: false);        //Uint8List(32)
+    late List<int> _keyHex = List.filled(33, 0, growable: false);           //Uint8List(33)
+    late List<int> _versionBytes = List.filled(4, 0, growable: false);      //Uint32
+    late NetworkType _networkType;
+    late KeyType _keyType;
 
 
     void deserialize(String vector){
@@ -36,7 +36,7 @@ abstract class CKDSerializer {
         this._chainCode   = decoded.sublist(13, 45);
         this._keyHex   = decoded.sublist(45, 78);
 
-        var version = HEX.encode(this._versionBytes.map( (elem) => elem.toUnsigned(8) ).toList());
+        var version = HEX.encode(this._versionBytes.map( (elem) => elem!.toUnsigned(8) ).toList());
 
     }
 
@@ -50,16 +50,16 @@ abstract class CKDSerializer {
         var chainCode = this._chainCode;
         var pubkeyHex = this._keyHex;
 
-        List<int> serializedKey = List(78);
+        List<int> serializedKey = List.filled(78, 0, growable: false);
         serializedKey.setRange(0, 4, versionBytes);
         serializedKey.setRange(4, 5, [this._nodeDepth]);
-        serializedKey.setRange(5, 9, this._parentFingerprint);
+        serializedKey.setRange(5, 9, this._parentFingerprint!);
         serializedKey.setRange(9, 13,this._childNumber);
         serializedKey.setRange(13, 45,this._chainCode);
         serializedKey.setRange(45, 78,this._keyHex);
 
         //checksum calculation... doubleSha
-        var doubleShaAddr = utils.sha256Twice(serializedKey);
+        var doubleShaAddr = utils.sha256Twice(serializedKey as List<int>);
         var checksum = doubleShaAddr.sublist(0, 4).map((elem) => elem.toSigned(8)).toList();
 
         List<int> encoded = bs58check.encode(serializedKey + checksum);
@@ -109,7 +109,7 @@ abstract class CKDSerializer {
     /// Retrieves the key as a byte buffer
     ///
     List<int> get keyBuffer {
-       return Uint8List.fromList(this._keyHex).toList();
+       return Uint8List.fromList(this._keyHex as List<int>).toList();
     }
 
     set versionBytes(List<int> bytes) {

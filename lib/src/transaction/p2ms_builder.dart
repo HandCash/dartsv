@@ -16,20 +16,20 @@ mixin P2MSLockMixin on _P2MSLockBuilder implements LockingScriptBuilder {
 
     if (publicKeys == null || requiredSigs == 0) return SVScript();
 
-    if (publicKeys.length > 15){
+    if (publicKeys!.length > 15){
       throw ScriptException("Too many public keys. P2MS limit is 15 public keys");
     }
 
-    if (requiredSigs > publicKeys.length) {
+    if (requiredSigs! > publicKeys!.length) {
       throw ScriptException("You can't have more signatures than public keys");
     }
 
     if (sorting) {
-      publicKeys.sort((a, b) => a.toString().compareTo(b.toString())); //sort the keys by default
+      publicKeys!.sort((a, b) => a.toString().compareTo(b.toString())); //sort the keys by default
     }
-    var pubKeyString = publicKeys.fold('', (prev, elem) => prev + sprintf(' %s 0x%s', [HEX.decode(elem.toHex()).length, elem.toHex()]));
+    var pubKeyString = publicKeys!.fold('', (dynamic prev, elem) => prev + sprintf(' %s 0x%s', [HEX.decode(elem!.toHex()).length, elem.toHex()]));
 
-    var scriptString = sprintf('OP_%s %s OP_%s OP_CHECKMULTISIG', [requiredSigs, pubKeyString, publicKeys.length]);
+    var scriptString = sprintf('OP_%s %s OP_%s OP_CHECKMULTISIG', [requiredSigs, pubKeyString, publicKeys!.length]);
 
     //OP_3 <pubKey1> <pubKey2> <pubKey3> <pubKey4> <pubKey5> OP_5 OP_CHECKMULTISIG
     return SVScript.fromString(scriptString);
@@ -38,8 +38,8 @@ mixin P2MSLockMixin on _P2MSLockBuilder implements LockingScriptBuilder {
 
 abstract class _P2MSLockBuilder implements LockingScriptBuilder {
 
-  List<SVPublicKey> publicKeys;
-  int requiredSigs;
+  List<SVPublicKey?>? publicKeys;
+  int? requiredSigs;
   bool sorting;
 
   _P2MSLockBuilder(this.publicKeys, this.requiredSigs, this.sorting);
@@ -54,14 +54,14 @@ abstract class _P2MSLockBuilder implements LockingScriptBuilder {
         throw ScriptException("Malformed multisig script. OP_CHECKMULTISIG is missing.");
       }
 
-      var keyCount = chunkList[0].opcodenum - 80;
+      var keyCount = chunkList[0].opcodenum! - 80;
 
       publicKeys = <SVPublicKey>[];
       for (var i = 1; i < keyCount + 1; i++){
-        publicKeys.add(SVPublicKey.fromDER(chunkList[i].buf));
+        publicKeys!.add(SVPublicKey.fromDER(chunkList[i].buf));
       }
 
-      requiredSigs = chunkList[keyCount + 1].opcodenum - 80;
+      requiredSigs = chunkList[keyCount + 1].opcodenum! - 80;
 
     }else{
       throw ScriptException("Invalid Script or Malformed Script.");
@@ -71,7 +71,7 @@ abstract class _P2MSLockBuilder implements LockingScriptBuilder {
 }
 
 class P2MSLockBuilder extends _P2MSLockBuilder with P2MSLockMixin {
-  P2MSLockBuilder(List<SVPublicKey> publicKeys, int requiredSigs, {sorting = true})
+  P2MSLockBuilder(List<SVPublicKey?>? publicKeys, int? requiredSigs, {sorting = true})
       : super(publicKeys, requiredSigs, sorting);
 }
 
@@ -82,7 +82,7 @@ mixin P2MSUnlockMixin on _P2MSUnlockBuilder implements UnlockingScriptBuilder{
   @override
   SVScript getScriptSig() {
 
-    var multiSigs = signatures.fold('', (prev, elem) => prev + sprintf(' %s 0x%s', [HEX.decode(elem.toTxFormat()).length, elem.toTxFormat()]));
+    var multiSigs = signatures.fold('', (dynamic prev, elem) => prev + sprintf(' %s 0x%s', [HEX.decode(elem.toTxFormat()).length, elem.toTxFormat()]));
 
     return SVScript.fromString('OP_0 ${multiSigs}');
   }
@@ -101,7 +101,7 @@ abstract class _P2MSUnlockBuilder extends SignedUnlockBuilder implements Unlocki
   _P2MSUnlockBuilder();
 
   @override
-  void fromScript(SVScript script) {
+  void fromScript(SVScript? script) {
     if (script != null && script.buffer != null) {
       var chunkList = script.chunks;
 
@@ -115,7 +115,7 @@ abstract class _P2MSUnlockBuilder extends SignedUnlockBuilder implements Unlocki
     }
   }
 
-  SVScript get scriptSig => getScriptSig();
+  SVScript? get scriptSig => getScriptSig();
 }
 
 class P2MSUnlockBuilder extends _P2MSUnlockBuilder with P2MSUnlockMixin{

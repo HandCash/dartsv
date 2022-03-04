@@ -14,7 +14,7 @@ main(){
     test('derivation is the same whether deriving with number or string', () {
         var pubkey = HDPublicKey.fromXpub(xpubkey);
         var derived1 = pubkey.deriveChildNumber(0).deriveChildNumber(1).deriveChildNumber(200000);
-        var derived2 = pubkey.deriveChildKey('m/0/1/200000');
+        var derived2 = pubkey.deriveChildKey('m/0/1/200000')!;
         expect(derived1.xpubkey, equals(derived01200000));
         expect(derived2.xpubkey, equals(derived01200000));
     });

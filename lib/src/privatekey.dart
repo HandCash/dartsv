@@ -32,13 +32,13 @@ class SVPrivateKey {
     final _secureRandom =  FortunaRandom();
 
     var _hasCompressedPubKey = false;
-    var _networkType = NetworkType.MAIN; //Mainnet by default
+    NetworkType? _networkType = NetworkType.MAIN; //Mainnet by default
 
     var random =  Random.secure();
 
-    BigInt _d;
-    ECPrivateKey _ecPrivateKey;
-    SVPublicKey _svPublicKey;
+    BigInt? _d;
+    late ECPrivateKey _ecPrivateKey;
+    SVPublicKey? _svPublicKey;
 
     /// Constructs a  random private key.
     ///
@@ -53,11 +53,11 @@ class SVPrivateKey {
         generator.init(ParametersWithRandom(keyParams, _secureRandom));
 
         var retry = 100; //100 retries to get correct bitLength. Problem in PointyCastle lib ?
-        AsymmetricKeyPair keypair;
+        late AsymmetricKeyPair keypair;
         while (retry > 0 ) {
           keypair = generator.generateKeyPair();
-          ECPrivateKey key = keypair.privateKey;
-          if (key.d.bitLength == 256) {
+          ECPrivateKey key = keypair.privateKey as ECPrivateKey;
+          if (key.d!.bitLength == 256) {
             break;
           }else{
             retry--;
@@ -66,10 +66,10 @@ class SVPrivateKey {
 
         _hasCompressedPubKey = true;
         _networkType = networkType;
-        _ecPrivateKey = keypair.privateKey;
+        _ecPrivateKey = keypair.privateKey as ECPrivateKey;
         _d = _ecPrivateKey.d;
 
-        if (_d.bitLength != 256) {
+        if (_d!.bitLength != 256) {
           throw InvalidKeyException("Failed to generate a valid private key after 100 tries. Try again. ");
         }
 
@@ -93,7 +93,7 @@ class SVPrivateKey {
     /// [privhex] - The BigInt representation of the private key as a hexadecimal string
     ///
     /// [networkType] - The network type we intend to use to corresponding WIF representation on.
-    SVPrivateKey.fromHex(String privhex, NetworkType networkType) {
+    SVPrivateKey.fromHex(String privhex, NetworkType? networkType) {
         var d = BigInt.parse(privhex,radix: 16);
 
         _hasCompressedPubKey = true;
@@ -184,7 +184,7 @@ class SVPrivateKey {
             _hasCompressedPubKey = false;
         }
 
-        var strippedHex = HEX.encode(versionStripped.map((elem) => elem.toUnsigned(8)).toList());
+        var strippedHex = HEX.encode(versionStripped.map((elem) => elem!.toUnsigned(8)).toList());
 
         var d = BigInt.parse(strippedHex, radix: 16);
 
@@ -199,7 +199,7 @@ class SVPrivateKey {
     /// Returns this Private Key in WIF format. See [toWIF()].
     String toWIF() {
         //convert private key _d to a hex string
-        var wifKey = _d.toRadixString(16).padLeft(64, '0');
+        var wifKey = _d!.toRadixString(16).padLeft(64, '0');
         var versionByte;
 
         if (_networkType == NetworkType.MAIN) {
@@ -236,7 +236,7 @@ class SVPrivateKey {
 
     /// Returns the *naked* private key Big Integer value as a hexadecimal string
     String toHex(){
-        return _d.toRadixString(16).padLeft(64, '0');
+        return _d!.toRadixString(16).padLeft(64, '0');
     }
 
     //convenience method to retrieve an address
@@ -244,7 +244,7 @@ class SVPrivateKey {
     /// Private Key's corresponding [SVPublicKey].
     Address toAddress({NetworkType networkType = NetworkType.MAIN}) {
         //FIXME: set network type to default parameter unless explicitly specified ?
-        return _svPublicKey.toAddress(_networkType);
+        return _svPublicKey!.toAddress(_networkType);
     }
 
     Uint8List _seed() {
@@ -265,13 +265,13 @@ class SVPrivateKey {
 
     /// Returns the Network Type that we intend to use this private key on.
     /// This is also the value encoded in the WIF format representation of this key.
-    NetworkType get networkType {
+    NetworkType? get networkType {
         return _networkType;
     }
 
 
     /// Returns the *naked* private key Big Integer value as a Big Integer
-    BigInt get privateKey {
+    BigInt? get privateKey {
         return _d;
     }
 
@@ -279,7 +279,7 @@ class SVPrivateKey {
     /// Returns the [SVPublicKey] corresponding to this ECDSA private key.
     ///
     /// NOTE: `Q = d * G` where *Q* is the public key, *d* is the private key and `G` is the curve's Generator.
-    SVPublicKey get publicKey  {
+    SVPublicKey? get publicKey  {
         return _svPublicKey;
     }
 

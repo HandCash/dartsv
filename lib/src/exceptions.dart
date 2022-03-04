@@ -19,7 +19,7 @@ class BadParameterException implements Exception {
 
 
 class InvalidPointException implements Exception {
-    String cause;
+    String? cause;
 
     InvalidPointException(this.cause);
 }
@@ -78,7 +78,7 @@ class ScriptException implements Exception {
 }
 
 class SignatureException implements Exception {
-    String cause;
+    String? cause;
 
     SignatureException(this.cause);
 }
